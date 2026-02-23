@@ -1,24 +1,16 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+// this tsx file is similar to a base.html or a form of navigation wrapper
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Stack } from "expo-router"; // Stack is a React component responsible for a form of navigation
+import { PaperProvider } from "react-native-paper";
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+export default function base () {
+    return (
+      <PaperProvider>
+        <Stack screenOptions={{ headerShown: false }}>
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
+          <Stack.Screen name="(tabs)"/>
+          {/* The line above will help create a persistent bottom nav bar*/}
+        </Stack>
+      </PaperProvider>
+    ); // ScreenOptions is a prop inside Stack, Screen is a subcomponent attached to Stack
 }
