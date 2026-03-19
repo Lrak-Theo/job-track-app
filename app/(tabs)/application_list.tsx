@@ -1,8 +1,22 @@
+import { useRouter } from "expo-router";
+import { useContext } from "react";
 import { ScrollView, View } from "react-native";
-import { Card, Chip, Divider, FAB, Text } from "react-native-paper";
+import { Chip, Divider, FAB, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context"; // SAF is used to prevent the page content to layer on top of the IOS head bar
+import JobCard from "../../components/JobCard";
+import { Application, ApplicationContext } from "../_layout";
 
-export default function list_page() {
+
+
+export default function ListPage() {
+
+    const router = useRouter();
+    const context = useContext(ApplicationContext);
+
+    if (!context) return null;
+
+    const { applications } = context;
+
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -14,7 +28,7 @@ export default function list_page() {
                 
 
                 <Text variant="bodyMedium" style={{ marginBottom: 20 }}>
-                    Look at your application statuses
+                    Look at your applications status
                 </Text>
 
                 {/* Filter Buttons */}
@@ -31,49 +45,20 @@ export default function list_page() {
 
                 <Divider/>
 
-                <View style={{ flex: 1, paddingTop: 16 }}>
-                    {/* Example of applications (what they would look like before CRUD) */}
-                    <Card style={{ marginBottom: 15 }}>
-                        <Card.Content>
-                            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
-                                {/* Becareful of trailing spaces in style={{" "}} as it can prevent the format from happening*/}
-                                <Text variant="titleMedium">RedHat</Text>
-                                <Chip mode="flat" textStyle={{ fontSize: 12 }}>
-                                    Applied
-                                </Chip>
-                            </View>
+                <ScrollView style={{ flex: 1, paddingTop: 16 }}>
+                    {applications.map((application: Application) => (
+                        <JobCard
+                            key={application.id}
+                            application={application}
+                            onPress={() => router.push({
+                                pathname: '../application/[id]',
+                                params: { id: application.id}
+                            })}
+                        />
+                    ))}
+                </ScrollView>
 
-                            <Text variant="bodyMedium" style={{ marginTop: 3 }}>
-                                Software Developer
-                            </Text>
-
-                            <Text variant="bodySmall" style= {{ marginTop: 6, opacity: 0.6 }}>
-                                Applied: 20 Feb 2026
-                            </Text>
-                        </Card.Content>
-                    </Card>
-
-                    <Card style={{ marginBottom: 15 }}>
-                        <Card.Content>
-                            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
-                                <Text variant="titleMedium">Bank of Ireland</Text>
-                                <Chip mode="flat" textStyle={{ fontSize: 12 }}>
-                                    Rejected
-                                </Chip>
-                            </View>
-
-                            <Text variant="bodyMedium" style={{ marginTop: 3 }}>
-                                Accountant
-                            </Text>
-
-                            <Text variant="bodySmall" style= {{ marginTop: 6, opacity: 0.6 }}>
-                                Applied: 13 Jan 2026
-                            </Text>
-                        </Card.Content>
-                    </Card>                    
-                </View>
-
-            <FAB icon="plus" style={{position: "absolute", right: 20, bottom: 20 }} onPress={() => {}}/>
+            <FAB icon="plus" style={{position: "absolute", right: 20, bottom: 20 }} onPress={ () => router.push({ pathname: '../add'})}/>
             {/* FAB is Floating Add Button, useful for screen scrolling while adding a row */}
 
             </View>
