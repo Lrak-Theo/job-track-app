@@ -6,7 +6,7 @@ import { Button, Divider, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { db } from '../../db/client';
 import { applicationsTable } from '../../db/schema';
-import { Application, ApplicationContext } from '../_layout';
+import { Application, ApplicationContext, Category } from '../_layout';
 
 export default function ApplicationDetail() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -15,13 +15,15 @@ export default function ApplicationDetail() {
 
     if (!context) return null;
 
-    const { applications, setApplications } = context;
+    const { applications, categories, setApplications } = context;
 
     const application = applications.find(
         (a: Application) => a.id === Number(id)
     );
 
     if (!application) return null;
+
+    const category = categories.find((c: Category) => c.id === application.categoryId);
 
     const deleteApplication = async () => {
         await db.delete(applicationsTable)
@@ -38,7 +40,24 @@ export default function ApplicationDetail() {
         <View style={{ padding: 20 }}>
             <Text variant="headlineMedium">{application.jobTitle}</Text>
             <Text variant="bodyLarge" style={{ marginTop: 5 }}>{application.jobCompany}</Text>
+            
+            {/* Display category name with its color */}
+            {category && (
+            <View style={{ marginTop: 5, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <View 
+                style={{ 
+                    width: 12, 
+                    height: 12, 
+                    borderRadius: 6, 
+                    backgroundColor: category.color 
+                }} 
+                />
+                <Text variant="bodyMedium">{category.name}</Text>
+            </View>
+            )}
+
             <Text variant="bodyMedium" style={{ marginTop: 5, opacity: 0.6 }}>{application.applyDate}</Text>
+            <Text variant="bodyMedium" style={{ marginTop: 5, opacity: 0.6 }}>{application.status}</Text>
 
             <Divider style={{ marginVertical: 20 }} />
 

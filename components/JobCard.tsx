@@ -1,15 +1,16 @@
-import { Application } from '@/app/_layout';
+import { Application, Category } from '@/app/_layout';
 import { useRouter } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 import { Card } from 'react-native-paper';
 
 type JobCardProp = {
     application: Application;
+    category: Category;
     onPress: () => void;
 }
 
 
-export default function JobCard({ application, onPress }: JobCardProp) {
+export default function JobCard({ application, category, onPress }: JobCardProp) {
     const router = useRouter();
 
     return (
@@ -27,9 +28,18 @@ export default function JobCard({ application, onPress }: JobCardProp) {
                             {application.jobTitle}
                         </Text>
 
+                        <Text style={{ marginTop: 3 }}>
+                            {category.name}
+                        </Text>
+
                         <Text style= {{ marginTop: 6, opacity: 0.6 }}>
                             {application.applyDate}
                         </Text>
+
+                        <Text style= {{ marginTop: 6, opacity: 0.6 }}>
+                            {application.status}
+                        </Text>
+                
 
                     </Card.Content>
                 </Card>
