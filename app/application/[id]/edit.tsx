@@ -1,4 +1,4 @@
-import { applicationsTable } from '@/db/schema';
+import { applicationsTable, applicationStatusLogsTable } from '@/db/schema';
 import { Ionicons } from '@expo/vector-icons';
 import { eq } from 'drizzle-orm';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -42,6 +42,12 @@ export default function EditApplication() {
         status 
       })
       .where(eq(applicationsTable.id, Number(id)));
+    
+    await db.insert(applicationStatusLogsTable).values({
+      applicationId: Number(id),
+      status,
+      changedAt: new Date().toISOString().split('T')[0],
+    });
 
     const rows = await db.select().from(applicationsTable);
     setApplications(rows);

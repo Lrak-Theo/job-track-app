@@ -47,6 +47,32 @@ export default function ListPage() {
         return matchesSearch && matchesStatus && matchesCategory && matchesDateRange;
     });
     
+    
+    {/* Converting the conditional block for the application filter into a elif for personal preference */}
+    let listContent;
+
+    if (filteredApplications.length === 0) {
+        listContent = (
+            <Text style={{ textAlign: 'center', marginTop: 20, opacity: 0.6 }}>
+                No applications found
+            </Text>
+        );
+    } else {
+        listContent = filteredApplications.map((application: Application) => {
+            const category = categories.find(c => c.id === application.categoryId);
+            return (
+                <JobCard
+                    key={application.id}
+                    application={application}
+                    category={category!}
+                    onPress={() => router.push({
+                        pathname: '../application/[id]',
+                        params: { id: String(application.id) }
+                    })}
+                />
+            );
+        });
+    }
 
 
     return (
@@ -133,31 +159,12 @@ export default function ListPage() {
                 <TextInput placeholder="Search by comapny or role" value={searchQuery} onChangeText={setSearchQuery} style={{ borderWidth: 1, marginBottom: 10, padding: 8}}/>
 
                 <ScrollView style={{ flex: 1, paddingTop: 16 }} contentContainerStyle={{ padding: 1 }}>
-                    {filteredApplications.length === 0 ? (
-                        <Text style={{ textAlign: 'center', marginTop: 20, opacity: 0.6 }}>
-                            No applications found
-                        </Text>
-                    ) : (
-                        filteredApplications.map((application: Application) => {
-                            const category = categories.find(c => c.id === application.categoryId);
-                            return (
-                                <JobCard
-                                    key={application.id}
-                                    application={application}
-                                    category={category!}
-                                    onPress={() => router.push({
-                                        pathname: '../application/[id]',
-                                        params: { id: String(application.id)}
-                                    })}
-                                />
-                            );
-                        })
-                    )}
+                        {/* listContent condition is above the render */}
+                        {listContent} 
                 </ScrollView>
 
             <FAB icon="plus" style={{position: "absolute", right: 20, bottom: 20 }} onPress={ () => router.push({ pathname: '../add'})}/>
             {/* FAB is Floating Add Button, useful for screen scrolling while adding a row */}
-
             </View>
         </SafeAreaView>
     );

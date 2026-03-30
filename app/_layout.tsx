@@ -1,6 +1,6 @@
 // this tsx file is similar to a base.html or a form of navigation wrapper
 
-import { applicationsTable, categoriesTable } from "@/db/schema";
+import { applicationsTable, applicationStatusLogsTable, categoriesTable, targetsTable } from "@/db/schema";
 import { seedApplicationsIfEmpty } from "@/db/seed ";
 import { Stack } from "expo-router"; // Stack is a React component responsible for a form of navigation
 import { createContext, useEffect, useState } from "react";
@@ -45,9 +45,13 @@ export default function Base () {
       
       const categoryRows = await db.select().from(categoriesTable);
       const applicationRows = await db.select().from(applicationsTable);
+      const applicationstatuslogsRows = await db.select().from(applicationStatusLogsTable);
+      const targetsTableRows = await db.select().from(targetsTable);
 
       console.log('Categories: ', JSON.stringify(categoryRows, null, 2));
       console.log('Applications: ', JSON.stringify(applicationRows, null, 2));
+      console.log('Application Status Logs', JSON.stringify(applicationstatuslogsRows, null, 2));
+      console.log('Targets', JSON.stringify(targetsTableRows, null, 2));
       
       setCategories(categoryRows);
       setApplications(applicationRows);
