@@ -1,7 +1,7 @@
 // this tsx file is similar to a base.html or a form of navigation wrapper
 
 import { applicationsTable, applicationStatusLogsTable, categoriesTable, targetsTable } from "@/db/schema";
-import { seedApplicationsIfEmpty } from "@/db/seed ";
+import { seedApplicationsIfEmpty } from "@/db/seed";
 import { Stack } from "expo-router"; // Stack is a React component responsible for a form of navigation
 import { createContext, useEffect, useState } from "react";
 import { PaperProvider } from "react-native-paper";
@@ -23,12 +23,23 @@ export type Application = {
     status: string;
 };
 
+export type StatusLog = {
+    id: number;
+    applicationId: number;
+    status: string;
+    changedAt: string;
+}
+
+
 type ApplicationContextType = {
   applications: Application[];
   setApplications: React.Dispatch<React.SetStateAction<Application[]>>;
   
   categories: Category[];
   setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
+
+  statusLogs: StatusLog[];
+  setStatusLogs: React.Dispatch<React.SetStateAction<StatusLog[]>>;
 };
 
 export const ApplicationContext = createContext<ApplicationContextType | null>(null);
@@ -38,6 +49,7 @@ export default function Base () {
 
   const [applications, setApplications] = useState<Application[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [statusLogs, setStatusLogs] = useState<StatusLog[]>([]);
 
   useEffect(() => {
     const load = async() => {
@@ -55,6 +67,7 @@ export default function Base () {
       
       setCategories(categoryRows);
       setApplications(applicationRows);
+      setStatusLogs(applicationstatuslogsRows);
     };
     
     load();
@@ -62,7 +75,7 @@ export default function Base () {
 
 
   return (
-    <ApplicationContext.Provider value={{ applications, setApplications, categories, setCategories }}> 
+    <ApplicationContext.Provider value={{ applications, setApplications, categories, setCategories, statusLogs, setStatusLogs }}> 
       <SafeAreaProvider>
         <PaperProvider>
           <Stack screenOptions={{ headerShown: false  }}>

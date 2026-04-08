@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/expo-sqlite';
 import { openDatabaseSync } from 'expo-sqlite';
 
-const sqlite = openDatabaseSync('applications.db');
+export const sqlite = openDatabaseSync('applications.db');
 
 sqlite.execSync(`
     CREATE TABLE IF NOT EXISTS categories (

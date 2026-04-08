@@ -6,11 +6,16 @@ import { SafeAreaView } from "react-native-safe-area-context"; // SAF is used to
 import JobCard from "../../components/JobCard";
 import { Application, ApplicationContext, Category } from "../_layout";
 
+import { sqlite } from '@/db/client';
+import { useDrizzleStudio } from 'expo-drizzle-studio-plugin';
+
 
 export default function ListPage() {
 
     const router = useRouter();
     const context = useContext(ApplicationContext);
+
+    useDrizzleStudio(sqlite);
 
     if (!context) return null;
 

@@ -1,4 +1,4 @@
-import { applicationsTable } from '@/db/schema';
+import { applicationsTable, applicationStatusLogsTable } from '@/db/schema';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
@@ -15,28 +15,37 @@ export default function AddApplication() {
 
     if (!context) return null;
 
-    const { setApplications, categories } = context;
+    const { setApplications, categories, setStatusLogs } = context;
 
     const [jobTitle, setJobTitle] = useState('');
     const [jobCompany, setJobCompany] = useState('');
     const [categoryId, setCategoryId] = useState<number | null>(null);
     const [applyDate, setApplyDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
-    const [status, setStatus] = useState('Applied');
 
     const saveApplication = async () => {
         if (!jobTitle.trim() || categoryId === null) return;
 
-        await db.insert(applicationsTable).values({
+        const result = await db.insert(applicationsTable).values({
             jobTitle,
             jobCompany,
             categoryId,
             applyDate: applyDate.toISOString().split('T')[0],
-            status
+            status: 'Applied',
+        }).returning();
+
+        await db.insert(applicationStatusLogsTable).values({
+            applicationId: result[0].id,
+            status: 'Applied',
+            changedAt: new Date().toISOString().split('T')[0],
         });
 
         const rows = await db.select().from(applicationsTable);
+        const updatedLogs = await db.select().from(applicationStatusLogsTable);
+
+
         setApplications(rows);
+        setStatusLogs(updatedLogs);
 
         router.back();
     };
@@ -98,26 +107,6 @@ export default function AddApplication() {
                         }}
                     />
                 )}
-
-                <Chip selected={status === 'Applied'} onPress={() => setStatus('Applied')}>
-                    Applied
-                </Chip>
-
-                <Chip selected={status === 'Interviewed'} onPress={() => setStatus('Interviewed')}>
-                    Interviewed
-                </Chip>
-
-                <Chip selected={status === 'Rejected'} onPress={() => setStatus('Rejected')}>
-                    Rejected
-                </Chip>
-
-                <Chip selected={status === 'No Response'} onPress={() => setStatus('No Response')}>
-                    No Response
-                </Chip>
-
-                <Chip selected={status === 'No Status'} onPress={() => setStatus('No Status')}>
-                    No Status
-                </Chip>
   
 
                 <Button

@@ -107,23 +107,20 @@ export default function EditApplication() {
         <Text style={{ marginTop: 15, marginBottom: 10, fontWeight: '600' }}>
           Status
         </Text>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
-          <Chip selected={status === 'Applied'} onPress={() => setStatus('Applied')}>
-            Applied
-          </Chip>
-          <Chip selected={status === 'Interviewed'} onPress={() => setStatus('Interviewed')}>
-            Interviewed
-          </Chip>
-          <Chip selected={status === 'Rejected'} onPress={() => setStatus('Rejected')}>
-            Rejected
-          </Chip>
-          <Chip selected={status === 'No Response'} onPress={() => setStatus('No Response')}>
-            No Response
-          </Chip>
-          <Chip selected={status === 'No Status'} onPress={() => setStatus('No Status')}>
-            No Status
-          </Chip>
-        </View>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+            <Chip selected={status === 'Interviewing'} onPress={() => setStatus('Interviewing')}>
+              Interviewing
+            </Chip>
+            <Chip selected={status === 'Offered'} onPress={() => setStatus('Offered')}>
+              Offered
+            </Chip>
+            <Chip selected={status === 'Rejected'} onPress={() => setStatus('Rejected')}>
+              Rejected
+            </Chip>
+            <Chip selected={status === 'Withdrawn'} onPress={() => setStatus('Withdrawn')}>
+              Withdrawn
+            </Chip>
+          </View>
 
         {/* Save Button */}
         <Button 
