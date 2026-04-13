@@ -1,7 +1,8 @@
 import { applicationsTable, categoriesTable } from '@/db/schema';
 import { useMemo } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
+import { Text, useTheme } from 'react-native-paper';
 
 {/* $InferSelect is from Drizzle ORM and extracts the TypeScript type that a row from that table would have */}
 type Application = typeof applicationsTable.$inferSelect;
@@ -15,6 +16,8 @@ type Props = {
 };
 
 export default function ApplicationsByCategoryChart({ applications, categories, selectedCategoryId, onSelectCategory}: Props) { 
+
+    const theme = useTheme(); 
 
     {/* useMemo caches the result of the calculation and only re-runs it again when its dependencies change (when a new application is added) */}
     const chartData = useMemo(() => {
@@ -49,19 +52,23 @@ export default function ApplicationsByCategoryChart({ applications, categories, 
         {/* Content when there are applications, the populated bar chart will be ready to be rendered */}
         content =(
             <BarChart data={chartData} barWidth={32} spacing={16} roundedTop hideRules
-                xAxisLabelTextStyle={{ fontSize: 11, color: '#888780'}}
+                xAxisLabelTextStyle={{ fontSize: 11, color: theme.colors.onSurface }}
+                yAxisTextStyle={{ color: theme.colors.onSurface }}
+                xAxisColor={theme.colors.onSurface}
+                yAxisColor={theme.colors.onSurface}
                 noOfSections={4} maxValue={Math.max(...chartData.map(d => d.value )) + 1} 
                 onPress={(item: any) => {
                     const cat = categories.find(c => c.name === item.label);
                     if (!cat) return;
                     onSelectCategory(selectedCategoryId === cat.id ? null : cat.id);
                 }}
+                isAnimated animationDuration={500}
                 />
         )
     };
 
     return (
-        <View>
+        <View style={{ backgroundColor: theme.colors.surface, padding: 12, borderRadius: 12 }}>
             <Text>Applications by category</Text>
             {content}
         </View>

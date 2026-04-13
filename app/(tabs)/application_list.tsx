@@ -9,6 +9,8 @@ import { Application, ApplicationContext, Category } from "../_layout";
 import { sqlite } from '@/db/client';
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin';
 
+import { useTheme } from "react-native-paper";
+
 
 export default function ListPage() {
 
@@ -79,9 +81,10 @@ export default function ListPage() {
         });
     }
 
+    const theme = useTheme();
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
             <View style={{ flex: 1, padding: 20 }}>
 
                 {/* This is the heading desing */}
@@ -94,7 +97,7 @@ export default function ListPage() {
                 </Text>
 
                 {/* Filter Buttons */}
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, alignSelf: "flex-start"}}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, alignSelf: "flex-start", backgroundColor: theme.colors.background }}>
                 {/* ScrollView (line above) enables the user to swipe across the filters */}
                     <View style ={{ flexDirection: "row", gap: 10, marginBottom: 20 }}>
 

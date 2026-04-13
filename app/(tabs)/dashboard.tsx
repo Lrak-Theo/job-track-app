@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useContext, useMemo, useState } from "react";
 import { ScrollView, View } from 'react-native';
-import { Button, Card, Menu, Text } from "react-native-paper";
+import { Button, Card, Menu, Text, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type Target = {
@@ -68,23 +68,20 @@ export default function dashboard() {
     const [menuVisible, setMenuVisible] = useState(false);
     const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
 
+    // Period filter only — for Chart 1
+    const periodFilteredApplications = useMemo(() => {
+    if (selectedPeriod === 'all') return applications;
+    const range = selectedPeriod === 'week' ? getWeekRange() : getMonthRange();
+    return applications.filter(app =>
+        app.applyDate >= range.start && app.applyDate <= range.end
+    );
+    }, [applications, selectedPeriod]);
+
+    // Period + category filter — for Charts 2, 3, 4
     const filteredApplications = useMemo(() => {
-        let result = applications;
-
-        if (selectedPeriod !== 'all') {
-
-            const range = selectedPeriod === 'week' ? getWeekRange() : getMonthRange();
-            result = result.filter(app =>
-                app.applyDate >= range.start && app.applyDate <= range.end
-            );  
-        }
-
-        if (selectedCategoryId !== null) {
-            result = result.filter(app => app.categoryId === selectedCategoryId);
-        }
-
-        return result;
-    }, [applications, selectedPeriod, selectedCategoryId]);
+    if (selectedCategoryId === null) return periodFilteredApplications;
+    return periodFilteredApplications.filter(app => app.categoryId === selectedCategoryId);
+    }, [periodFilteredApplications, selectedCategoryId]);
 
     const filteredStatusLogs = useMemo(() => {
         const filteredIds = new Set(filteredApplications.map(a => a.id));
@@ -180,10 +177,12 @@ export default function dashboard() {
         );
     }
 
+    const theme = useTheme();
+
 
     return (
-        <ScrollView contentContainerStyle={{ padding: 16 }}>
-            <SafeAreaView style={{ flex: 1, padding: 20}}>
+        <ScrollView contentContainerStyle={{ padding: 16, backgroundColor: theme.colors.background }}>
+            <SafeAreaView style={{ flex: 1, padding: 20, backgroundColor: theme.colors.background }}>
                 <Text variant="headlineMedium" style={{ marginBottom: 16 }}>Targets</Text>
 
                 <Button mode="outlined" onPress={() => router.push({ pathname: '../target_add' })}>
@@ -216,7 +215,7 @@ export default function dashboard() {
                     </Button>
                 )}
 
-                <ApplicationsByCategoryChart applications={filteredApplications} categories={categories} selectedCategoryId={selectedCategoryId} onSelectCategory={setSelectedCategoryId}/>
+                <ApplicationsByCategoryChart applications={periodFilteredApplications} categories={categories} selectedCategoryId={selectedCategoryId} onSelectCategory={setSelectedCategoryId}/>
 
                 <StatusBreakdownChart statusLogs={filteredStatusLogs}/>
 

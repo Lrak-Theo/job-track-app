@@ -16,6 +16,12 @@ export default function nav_bar() {
             ),
         }}
         />
+
+            <Tabs.Screen name="settings" options={{title:"Settings", 
+                tabBarIcon: ({color, size}) => (<MaterialCommunityIcons name="cog-outline" color={color} size={size} />
+            ),
+        }}
+        />
         
         </Tabs>
     );

@@ -1,7 +1,8 @@
 import { applicationStatusLogsTable } from '@/db/schema';
 import { useMemo } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
+import { Text, useTheme } from 'react-native-paper';
 
 type StatusLog = typeof applicationStatusLogsTable.$inferSelect;
 
@@ -18,6 +19,9 @@ const statusColours: Record<string, string> = {
 };
 
 export default function StatusBreakdownChart( { statusLogs }: Props) {
+
+    const theme = useTheme();
+
     const chartData = useMemo(() => {
         const counts: Record<string, number> = {};
 
@@ -37,10 +41,11 @@ export default function StatusBreakdownChart( { statusLogs }: Props) {
     } else {
         content = (
             <View>
-                <PieChart data={chartData} donut radius={90} innerRadius={55} 
+                <PieChart data={chartData} donut radius={90} innerRadius={55} innerCircleColor={theme.colors.surface}
                 centerLabelComponent={() => (
-                    <Text>{statusLogs.length} total</Text>
-                )}/>
+                    <Text style={{ color: theme.colors.onSurface }}>{statusLogs.length} total</Text> 
+                )}
+                isAnimated animationDuration={500}/>
             
             <View>
                 {chartData.map(item => (
@@ -57,7 +62,7 @@ export default function StatusBreakdownChart( { statusLogs }: Props) {
     }
 
     return (
-        <View>
+        <View style={{ backgroundColor: theme.colors.surface, padding: 12, borderRadius: 12 }}> 
             <Text>Status breakdown</Text>
             {content}
         </View>

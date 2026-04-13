@@ -16,3 +16,6 @@ dayjs library (for easier date time range calculations)
 npx expo install react-native-svg (for exporting the charts)
 
 npm install react-native-linear-gradient (extra dependency for the react native charts)
+
+
+npx expo install @react-native-async-storage/async-storage (for darkmode and light mode toggle)

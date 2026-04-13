@@ -2,8 +2,9 @@ import { applicationsTable } from '@/db/schema';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import { useMemo } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { LineChart } from 'react-native-gifted-charts';
+import { Text, useTheme } from 'react-native-paper';
 
 type Application = typeof applicationsTable.$inferSelect;
 
@@ -32,6 +33,8 @@ const monthly_background_colours = ['#1D9E75', '#0F6E56'];
 
 export default function ApplicationsOverTimeChart({ applications }: Props ) { 
     
+    const theme = useTheme();
+
     const chartData = useMemo(() => {
         const weeks = getLast12Weeks();
         const counts: Record<string, number> = {};
@@ -61,14 +64,17 @@ export default function ApplicationsOverTimeChart({ applications }: Props ) {
     } else {
         content = (
             <LineChart data={chartData} height={180} spacing={44} hideRules color="#1D9E75" thickness={2}
-                        xAxisLabelTextStyle={{ fontSize: 10, color: '#888780' }} yAxisTextStyle={{ fontSize: 10, color: '#888780' }}
+                        xAxisLabelTextStyle={{ fontSize: 10, color: theme.colors.onSurface }}
+                        yAxisTextStyle={{ fontSize: 10, color: theme.colors.onSurface }}
+                        xAxisColor={theme.colors.onSurface}
+                        yAxisColor={theme.colors.onSurface}
                         noOfSections={4} maxValue={Math.max(...chartData.map(d => d.value)) + 1} hideDataPoints={false} 
-                        />
+                        isAnimated animationDuration={500}/>
         );
     }
 
     return (
-        <View>
+        <View style={{ backgroundColor: theme.colors.surface, padding: 12, borderRadius: 12 }}>
             <Text>Applications over time</Text>
             {content}
         </View>

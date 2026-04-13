@@ -1,6 +1,7 @@
 import { applicationsTable, applicationStatusLogsTable, categoriesTable } from '@/db/schema';
 import { useMemo, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, TouchableOpacity, View } from 'react-native';
+import { Text, useTheme } from 'react-native-paper';
 
 type Application = typeof applicationsTable.$inferSelect;
 type StatusLog = typeof applicationStatusLogsTable.$inferSelect;
@@ -30,6 +31,7 @@ function getOpacity(count: number, max: number): string {
 
 export default function CompanyStatusMatrix({ applications, statusLogs, categories }: Props) {
   const [expanded, setExpanded] = useState(false);
+  const theme = useTheme();
 
   const { rows, maxCount } = useMemo(() => {
     const companyMap: Record<string, Record<string, number>> = {};
@@ -81,7 +83,7 @@ export default function CompanyStatusMatrix({ applications, statusLogs, categori
               <View style={{ width: 110 }} />
               {STATUSES.map(s => (
                 <View key={s} style={{ width: 72, alignItems: 'center' }}>
-                  <Text style={{ fontSize: 10, color: '#888780' }}>{s}</Text>
+                  <Text style={{ fontSize: 10, color: theme.colors.onSurface }}>{s}</Text> 
                 </View>
               ))}
             </View>
@@ -89,7 +91,7 @@ export default function CompanyStatusMatrix({ applications, statusLogs, categori
             {visibleRows.map(row => (
               <View key={row.company} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
                 <View style={{ width: 110 }}>
-                  <Text style={{ fontSize: 11, color: '#374151' }} numberOfLines={1}>{row.company}</Text>
+                  <Text style={{ fontSize: 11, color: theme.colors.onSurface }} numberOfLines={1}>{row.company}</Text> 
                 </View>
                 {STATUSES.map(status => {
                   const count = row.statuses[status] ?? 0;
@@ -99,11 +101,11 @@ export default function CompanyStatusMatrix({ applications, statusLogs, categori
                     <View
                       key={status}
                       style={{ width: 72, height: 32, borderRadius: 6, marginHorizontal: 2,
-                        backgroundColor: count === 0 ? '#f3f4f6' : baseColor, opacity: count === 0 ? 1 : Number(opacity),
+                        backgroundColor: count === 0 ? theme.colors.surfaceVariant : baseColor, opacity: count === 0 ? 1 : Number(opacity),
                         alignItems: 'center', justifyContent: 'center',
                       }}
                     >
-                      <Text style={{ fontSize: 11, fontWeight: '500', color: count === 0 ? '#d1d5db' : '#fff',}}>
+                      <Text style={{ fontSize: 11, fontWeight: '500', color: count === 0 ? theme.colors.onSurface : '#fff' }}>
                         {count === 0 ? '—' : count}
                       </Text>
                       
@@ -120,7 +122,7 @@ export default function CompanyStatusMatrix({ applications, statusLogs, categori
             onPress={() => setExpanded(prev => !prev)}
             style={{ marginTop: 12, alignItems: 'center' }}
           >
-            <Text style={{ fontSize: 13, color: '#1D9E75' }}>
+            <Text style={{ fontSize: 13, color: theme.colors.primary }}> 
               {expanded ? 'Show less' : `Show all ${rows.length} companies`}
             </Text>
           </TouchableOpacity>
@@ -130,7 +132,7 @@ export default function CompanyStatusMatrix({ applications, statusLogs, categori
   }
 
   return (
-    <View style={{ marginTop: 24 }}>
+     <View style={{ marginTop: 24, backgroundColor: theme.colors.surface, padding: 12, borderRadius: 12 }}> 
       <Text style={{ fontSize: 15, fontWeight: '500', marginBottom: 12 }}>
         Status of applications by company
       </Text>
