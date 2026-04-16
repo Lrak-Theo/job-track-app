@@ -19,3 +19,13 @@ npm install react-native-linear-gradient (extra dependency for the react native 
 
 
 npx expo install @react-native-async-storage/async-storage (for darkmode and light mode toggle)
+
+npx expo install expo-file-system expo-sharing
+npm install papaparse
+npm install -D @types/papaparse (library for exporting the applciations table as a spreadsheet)
+
+npx expo install expo-notifications (for notifcations)
+
+
+
+For the public API, used Adzuna for the salary listings

@@ -2,7 +2,9 @@
 
 import { applicationsTable, applicationStatusLogsTable, categoriesTable, targetsTable } from "@/db/schema";
 import { seedApplicationsIfEmpty } from "@/db/seed";
+import { scheduleWeeklyReminder } from "@/utils/notifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from "expo-notifications";
 import { Stack } from "expo-router"; // Stack is a React component responsible for a form of navigation
 import { createContext, useEffect, useState } from "react";
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
@@ -88,6 +90,17 @@ const myDarkTheme = {
   }
 };
 
+{/* Setting up the notification */}
+Notifications.setNotificationHandler({
+  handleNotification: async() => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
+
 export default function Base () {
 
   const [applications, setApplications] = useState<Application[]>([]);
@@ -96,6 +109,20 @@ export default function Base () {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
+
+    async function initNotifications() {
+      const stored = await AsyncStorage.getItem('notificationsEnabled');
+      const isEnabled = stored === null ? true : stored === 'true';
+      if (!isEnabled) return;
+
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== 'granted') return;
+
+      await scheduleWeeklyReminder();
+    }
+
+
+
     const load = async() => {
       await seedApplicationsIfEmpty();
       
@@ -115,6 +142,8 @@ export default function Base () {
 
       const savedTheme = await AsyncStorage.getItem(Theme_Key)
       if (savedTheme === 'dark') setIsDarkMode(true);
+
+      await initNotifications();
     };
     
     load();

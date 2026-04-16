@@ -1,12 +1,33 @@
-import { useContext } from "react";
+import { cancelReminder, scheduleWeeklyReminder } from '@/utils/notifications';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useContext, useEffect, useState } from "react";
 import { ScrollView } from "react-native";
 import { Divider, List, Switch, Text, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeContext } from "../_layout";
 
+
 export default function SettingsScreen() { 
     const {isDarkMode, toggleTheme} = useContext(ThemeContext);
     const theme = useTheme();
+    const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+
+    useEffect(() => {
+        AsyncStorage.getItem('notificationsEnabled').then((val) => {
+            if (val !== null) setNotificationsEnabled(val === 'true');
+        });
+    }, []);
+
+    const handleNotificationToggle = async (value: boolean) => { 
+        setNotificationsEnabled(value);
+        await AsyncStorage.setItem('notificationsEnabled', String(value));
+        if (value) {
+            await scheduleWeeklyReminder();
+        } else {
+            await cancelReminder();
+        }
+    }; 
+
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -42,6 +63,16 @@ export default function SettingsScreen() {
                     onPress={() => {}} 
                 />
 
+                {/* Notifications */}
+                <Text variant="labelLarge" style={{ marginBottom: 8 }}>
+                    Notifications
+                </Text>
+
+                <List.Item title="Weekly Target Reminder" description="Reminds you every Monday at 09:00"
+                    right={() => (
+                        <Switch value={notificationsEnabled} onValueChange={handleNotificationToggle}/>
+                    )}
+                />
 
             </ScrollView>
         </SafeAreaView>

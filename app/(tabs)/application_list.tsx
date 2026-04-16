@@ -11,6 +11,8 @@ import { useDrizzleStudio } from 'expo-drizzle-studio-plugin';
 
 import { useTheme } from "react-native-paper";
 
+import ExportButton from "@/components/exportAsCsvButton";
+
 
 export default function ListPage() {
 
@@ -164,7 +166,16 @@ export default function ListPage() {
 
                 <Divider/>
 
-                <TextInput placeholder="Search by comapny or role" value={searchQuery} onChangeText={setSearchQuery} style={{ borderWidth: 1, marginBottom: 10, padding: 8}}/>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                    <TextInput
+                        placeholder="Search by company or role"
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                        style={{ flex: 1, marginRight: 4 }}
+                        dense
+                    />
+                    <ExportButton />
+                </View>
 
                 <ScrollView style={{ flex: 1, paddingTop: 16 }} contentContainerStyle={{ padding: 1 }}>
                         {/* listContent condition is above the render */}

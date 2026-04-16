@@ -1,6 +1,6 @@
 import { ApplicationContext } from "@/app/_layout";
 import ApplicationsByCategoryChart from "@/components/applicationsByCategoryChart";
-import ApplicationsOverTimeChart from "@/components/applicationsOverTimeChart";
+import MarketSalaryComparisonChart from "@/components/salaryComparisonChart";
 import CompanyStatusMatrix from "@/components/statusByCompaniesMatrix";
 import StatusBreakdownChart from "@/components/statusPieChart";
 import { db } from "@/db/client";
@@ -219,9 +219,9 @@ export default function dashboard() {
 
                 <StatusBreakdownChart statusLogs={filteredStatusLogs}/>
 
-                <ApplicationsOverTimeChart applications={filteredApplications}/>
-
                 <CompanyStatusMatrix applications={filteredApplications} statusLogs={filteredStatusLogs} categories={categories} />
+                
+                <MarketSalaryComparisonChart applications={applications}/>
                 
             </SafeAreaView>
         </ScrollView>
