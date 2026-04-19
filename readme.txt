@@ -29,3 +29,5 @@ npx expo install expo-notifications (for notifcations)
 
 
 For the public API, used Adzuna for the salary listings
+
+for hashing, used bcryptjs

@@ -1,15 +1,23 @@
 // this tsx file is similar to a base.html or a form of navigation wrapper
 
-import { applicationsTable, applicationStatusLogsTable, categoriesTable, targetsTable } from "@/db/schema";
+import { applicationsTable, applicationStatusLogsTable, categoriesTable, targetsTable, usersTable } from "@/db/schema";
 import { seedApplicationsIfEmpty } from "@/db/seed";
 import { scheduleWeeklyReminder } from "@/utils/notifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { eq } from 'drizzle-orm';
 import * as Notifications from "expo-notifications";
-import { Stack } from "expo-router"; // Stack is a React component responsible for a form of navigation
+import { Stack, useRouter } from "expo-router"; // Stack is a React component responsible for a form of navigation
 import { createContext, useEffect, useState } from "react";
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context"; // Since IOS is the emulator in use, having a global safe area view is needed
 import { db } from "../db/client";
+
+export type User = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+};
 
 export type Category = {
   id: number;
@@ -33,6 +41,13 @@ export type StatusLog = {
     changedAt: string;
 }
 
+// Adding Context Types
+type AuthContextType = {
+  currentUser: User | null;
+  setCurrentUser: React.Dispatch<React.SetStateAction<User | null>>;
+  logout: () => Promise<void>;
+  loadUserData: (userId: number) => Promise<void>;
+};
 
 type ApplicationContextType = {
   applications: Application[];
@@ -50,6 +65,8 @@ type ThemeContextType = {
   toggleTheme: () => void;
 }
 
+export const AuthContext = createContext<AuthContextType | null>(null);
+
 export const ApplicationContext = createContext<ApplicationContextType | null>(null);
 
 export const ThemeContext = createContext<ThemeContextType>({
@@ -57,7 +74,7 @@ export const ThemeContext = createContext<ThemeContextType>({
   toggleTheme: () => {},
 });
 
-{/* Set base theme */}
+// Set base theme
 const Theme_Key = 'app_theme'; 
 
 const myLightTheme = {
@@ -90,7 +107,7 @@ const myDarkTheme = {
   }
 };
 
-{/* Setting up the notification */}
+// Setting up the notification 
 Notifications.setNotificationHandler({
   handleNotification: async() => ({
     shouldShowAlert: true,
@@ -103,10 +120,23 @@ Notifications.setNotificationHandler({
 
 export default function Base () {
 
+  const router = useRouter();
+
+  const [currentUser, setCurrentUser] = useState <User | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [statusLogs, setStatusLogs] = useState<StatusLog[]>([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const loadUserData = async (userId: number) => { 
+    const applicationRows = await db.select().from(applicationsTable).where(eq(applicationsTable.userId, userId));
+    const categoryRows = await db.select().from(categoriesTable);
+    const applicationstatuslogRows = await db.select().from(applicationStatusLogsTable);
+
+    setApplications(applicationRows);
+    setCategories(categoryRows);
+    setStatusLogs(applicationstatuslogRows);
+  };
 
   useEffect(() => {
 
@@ -125,21 +155,42 @@ export default function Base () {
 
     const load = async() => {
       await seedApplicationsIfEmpty();
+
+      // Checking for saved session
+      const savedUserId = await AsyncStorage.getItem('session_user_id');
+      let activeUserId: number | null = null;
+
+      if (savedUserId) {
+        const userRows = await db.select().from(usersTable).where(eq(usersTable.id, Number(savedUserId)));
+
+        if (userRows.length > 0) {
+          setCurrentUser(userRows[0]);
+          activeUserId = userRows[0].id;
+          router.replace('/' as any);
+        } else {
+          await AsyncStorage.removeItem('session_user_id');
+          router.replace('/(auth)/login' as any);
+        } 
+      } else {
+        router.replace('/(auth)/login' as any);
+      }
       
+      // Now only fetching application data from the current user
+      const applicationRows = activeUserId ? await db.select().from(applicationsTable).where(eq(applicationsTable.userId, activeUserId))
+        : []; 
+
       const categoryRows = await db.select().from(categoriesTable);
-      const applicationRows = await db.select().from(applicationsTable);
-      const applicationstatuslogsRows = await db.select().from(applicationStatusLogsTable);
-      const targetsTableRows = await db.select().from(targetsTable);
+      const applicationstatuslogRows = await db.select().from(applicationStatusLogsTable);
 
-      console.log('Categories: ', JSON.stringify(categoryRows, null, 2));
-      console.log('Applications: ', JSON.stringify(applicationRows, null, 2));
-      console.log('Application Status Logs', JSON.stringify(applicationstatuslogsRows, null, 2));
-      console.log('Targets', JSON.stringify(targetsTableRows, null, 2));
+      // Now only fetching target data from the current user
+      const targetsTableRows = activeUserId ? await db.select().from(targetsTable).where(eq(targetsTable.userId, activeUserId))
+        : [];
       
-      setCategories(categoryRows);
       setApplications(applicationRows);
-      setStatusLogs(applicationstatuslogsRows);
+      setCategories(categoryRows);
+      setStatusLogs(applicationstatuslogRows);
 
+      // setting the application colour design
       const savedTheme = await AsyncStorage.getItem(Theme_Key)
       if (savedTheme === 'dark') setIsDarkMode(true);
 
@@ -149,6 +200,13 @@ export default function Base () {
     load();
   }, []);
 
+  const logout = async () => {
+    await AsyncStorage.removeItem('session_user_id');
+    setCurrentUser(null);
+    setApplications([]);
+    setStatusLogs([]);
+    router.replace('/(auth)/login' as any);
+  }
   
   const toggleTheme = async () => {
     const next = !isDarkMode;
@@ -156,24 +214,25 @@ export default function Base () {
     await AsyncStorage.setItem(Theme_Key, next ? 'dark' : 'light' );
   }
 
-  {/* Potentially repallette own colour scheme */}
   const theme = isDarkMode ? myDarkTheme : myLightTheme;
 
 
   return (
     <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
-      <ApplicationContext.Provider value={{ applications, setApplications, categories, setCategories, statusLogs, setStatusLogs }}> 
-        <SafeAreaProvider>
-          <PaperProvider theme={theme}>
-            <Stack screenOptions={{ headerShown: false  }}>
+      <AuthContext.Provider value={{ currentUser, setCurrentUser, logout, loadUserData }}>
+        <ApplicationContext.Provider value={{ applications, setApplications, categories, setCategories, statusLogs, setStatusLogs }}> 
+          <SafeAreaProvider>
+            <PaperProvider theme={theme}>
+              <Stack screenOptions={{ headerShown: false  }}>
 
-              <Stack.Screen name="(tabs)"/>
-              {/* The line above will help create a persistent bottom nav bar*/}
+                <Stack.Screen name="(auth)"/>
+                <Stack.Screen name="(tabs)"/>
 
-            </Stack>
-          </PaperProvider>
-        </SafeAreaProvider>
-      </ApplicationContext.Provider>
+              </Stack>
+            </PaperProvider>
+          </SafeAreaProvider>
+        </ApplicationContext.Provider>
+      </AuthContext.Provider>
     </ThemeContext.Provider>
   ); // ScreenOptions is a prop inside Stack, Screen is a subcomponent attached to Stack
 }

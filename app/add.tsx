@@ -7,11 +7,14 @@ import { Button, TextInput, TouchableOpacity, View } from 'react-native';
 import { Chip, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { db } from '../db/client';
-import { ApplicationContext, Category } from './_layout';
+import { ApplicationContext, AuthContext, Category } from './_layout';
+
 
 export default function AddApplication() {
     const router = useRouter();
     const context = useContext(ApplicationContext);
+    const authContext = useContext(AuthContext);
+    const currentUser = authContext?.currentUser;
 
     if (!context) return null;
 
@@ -27,6 +30,7 @@ export default function AddApplication() {
         if (!jobTitle.trim() || categoryId === null) return;
 
         const result = await db.insert(applicationsTable).values({
+            userId: currentUser!.id,
             jobTitle,
             jobCompany,
             categoryId,

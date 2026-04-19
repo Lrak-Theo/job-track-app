@@ -1,5 +1,15 @@
 import { integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
 
+export const usersTable = sqliteTable('users', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  firstName: text('first_name').notNull(),
+  lastName: text('last_name').notNull(),
+  email: text('email').notNull().unique(),
+  passwordhashed: text('password_hash').notNull(),
+  createdAt: text('created_at').notNull(),
+})
+
+
 export const categoriesTable = sqliteTable('categories', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
@@ -9,7 +19,7 @@ export const categoriesTable = sqliteTable('categories', {
 
 export const targetsTable = sqliteTable('targets', {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  userId: integer('user_id').notNull().default(1),
+  userId: integer('user_id').notNull().references(() => usersTable.id),
   period: text('period').notNull(),
   goalCount: integer('goal_count').notNull(),
   categoryId: integer('category_id').references(() => categoriesTable.id),
@@ -21,6 +31,7 @@ export const targetsTable = sqliteTable('targets', {
 
 export const applicationsTable = sqliteTable('applications', {
   id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').notNull().references(() => usersTable.id),
   jobTitle: text('jobTitle').notNull(),
   jobCompany: text('jobCompany').notNull(),
   categoryId: integer('categoryId').notNull().references(() => categoriesTable.id), // foreign key

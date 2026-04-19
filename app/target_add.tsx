@@ -1,11 +1,12 @@
 import { categoriesTable, targetsTable } from '@/db/schema';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Button, TextInput, TouchableOpacity, View } from 'react-native';
 import { Chip, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { db } from '../db/client';
+import { AuthContext } from './_layout';
 
 export default function AddTarget() {
 
@@ -16,6 +17,9 @@ export default function AddTarget() {
     }
 
     const router = useRouter();
+
+    const authContext = useContext(AuthContext);
+    const currentUser = authContext?.currentUser;
 
     const [period, setPeriod] = useState<'weekly' | 'monthly'>('weekly');
     const [goalCount, setGoalCount] = useState('');
@@ -35,7 +39,7 @@ export default function AddTarget() {
         if (!goalCount.trim() || categoryId === null) return;
 
         await db.insert(targetsTable).values({
-            userId: 1,
+            userId: currentUser!.id,
             period,
             goalCount: parseInt(goalCount),
             categoryId,

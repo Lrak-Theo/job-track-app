@@ -1,16 +1,55 @@
 import { cancelReminder, scheduleWeeklyReminder } from '@/utils/notifications';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { eq } from 'drizzle-orm';
+import { useRouter } from 'expo-router';
 import { useContext, useEffect, useState } from "react";
-import { ScrollView } from "react-native";
+import { Alert, ScrollView } from "react-native";
 import { Divider, List, Switch, Text, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ThemeContext } from "../_layout";
+import { db } from '../../db/client';
+import { applicationsTable, targetsTable, usersTable } from '../../db/schema';
+import { AuthContext, ThemeContext } from "../_layout";
 
 
 export default function SettingsScreen() { 
+
+    const router = useRouter()
+    const authContext = useContext(AuthContext);
+
     const {isDarkMode, toggleTheme} = useContext(ThemeContext);
     const theme = useTheme();
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+
+    // Adding logout for user
+    const handleLogout = async () => {
+        await authContext?.logout();
+    };
+
+    // Adding delete account for user
+    const handleDeleteAccount = async () => {
+        Alert.alert(
+            'Delete Account',
+            'This will permanently delete your account and all your applications.',
+            [
+                { text: 'Cancel', style: 'cancel'},
+                {
+                    text: 'Dete',
+                    style: 'destructive', onPress: async () => {
+                        const userId = authContext?.currentUser?.id;
+
+                        if (!userId) return;
+
+                        await db.delete(targetsTable).where(eq(targetsTable.userId, userId));
+                        await db.delete(applicationsTable).where(eq(applicationsTable.userId, userId));
+                        await db.delete(usersTable).where(eq(usersTable.id, userId));
+
+                        await authContext?.logout();
+                    }
+                }
+            ]
+        )
+    }
+
 
     useEffect(() => {
         AsyncStorage.getItem('notificationsEnabled').then((val) => {
@@ -56,11 +95,11 @@ export default function SettingsScreen() {
                 </Text>
 
                 <List.Item title="Logout" left={() => <List.Icon icon="logout" />}
-                    onPress={() => {}} 
+                    onPress={handleLogout} 
                 />
 
                 <List.Item title="Delete Account" left={() => <List.Icon icon="delete-outline" />} 
-                    onPress={() => {}} 
+                    onPress={handleDeleteAccount} 
                 />
 
                 {/* Notifications */}

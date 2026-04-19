@@ -22,6 +22,20 @@
       "when": 1774699172025,
       "tag": "0002_equal_molten_man",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1776513835533,
+      "tag": "0003_lying_fabian_cortez",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1776514086137,
+      "tag": "0004_boring_captain_midlands",
+      "breakpoints": true
     }
   ]
 }

@@ -2,11 +2,12 @@ import { targetsTable } from '@/db/schema';
 import { Ionicons } from '@expo/vector-icons';
 import { eq } from 'drizzle-orm';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { db } from '../db/client';
+import { AuthContext } from './_layout';
 
 type Target = {
     id: number;
@@ -20,10 +21,13 @@ export default function ManageTargets() {
     const router = useRouter();
     const [targets, setTargets] = useState<Target[]>([]);
 
+    const authContext = useContext(AuthContext);
+    const currentUser = authContext?.currentUser;
+
     useFocusEffect(
         useCallback(() => {
             const load = async () => {
-                const rows = await db.select().from(targetsTable);
+                const rows = await db.select().from(targetsTable).where(eq(targetsTable.userId, currentUser!.id));
                 setTargets(rows);
             };
             load();
@@ -32,12 +36,15 @@ export default function ManageTargets() {
 
     const deleteTarget = async (id: number) => {
         await db.delete(targetsTable).where(eq(targetsTable.id, id));
-        const rows = await db.select().from(targetsTable);
+        const rows = await db.select().from(targetsTable).where(eq(targetsTable.userId, currentUser!.id));
         setTargets(rows);
     };
 
     const globalTargets = targets.filter(t => t.categoryId === null);
     const categoryTargets = targets.filter(t => t.categoryId !== null);
+
+
+
 
     let content;
 
