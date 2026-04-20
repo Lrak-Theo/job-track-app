@@ -1,46 +1,39 @@
 import { categoriesTable, targetsTable } from '@/db/schema';
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useContext, useEffect, useState } from 'react';
-import { Button, TextInput, TouchableOpacity, View } from 'react-native';
-import { Chip, Text } from 'react-native-paper';
+import { KeyboardAvoidingView, Platform, View } from 'react-native';
+import { Button, Chip, Divider, IconButton, Text, TextInput, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { db } from '../db/client';
 import { AuthContext } from './_layout';
 
+type Category = { id: number; name: string; color: string; };
+
 export default function AddTarget() {
 
-    type Category = {
-        id: number;
-        name: string;
-        color: string;
-    }
-
+    // Set context and theme
     const router = useRouter();
-
+    const theme = useTheme();
     const authContext = useContext(AuthContext);
     const currentUser = authContext?.currentUser;
 
-    const [period, setPeriod] = useState<'weekly' | 'monthly'>('weekly');
+    // Set state values
     const [goalCount, setGoalCount] = useState('');
-
-    const [categoryId, setCategoryId] = useState<number | null>(null);
+    const [categoryId, setCategoryId] = useState<number | null | undefined>(undefined);
     const [categories, setCategories] = useState<Category[]>([]);
 
+    // Effects...
     useEffect(() => {
-        const load = async () => {
-            const rows = await db.select().from(categoriesTable);
-            setCategories(rows);
-        };
-        load();
+        db.select().from(categoriesTable).then(setCategories);
     }, []);
 
+    // Handler...
     const saveTarget = async () => {
-        if (!goalCount.trim() || categoryId === null) return;
+        if (!goalCount.trim() || parseInt(goalCount) < 1 || categoryId === undefined) return;
 
         await db.insert(targetsTable).values({
             userId: currentUser!.id,
-            period,
+            period: 'weekly',
             goalCount: parseInt(goalCount),
             categoryId,
             createdAt: new Date().toISOString().split('T')[0],
@@ -50,42 +43,60 @@ export default function AddTarget() {
     };
 
     return (
-        <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-            <View style={{ padding: 20 }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }} edges={['top']}>
+            <KeyboardAvoidingView style={{ flex: 1, padding: 20 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
 
-                <TouchableOpacity onPress={() => router.back()} style={{ marginBottom: 20}}>
-                    <Ionicons name="close" size={28} color={"#666"}/>
-                </TouchableOpacity>
-
-                <Text style={{ marginTop: 15, marginBottom: 10, fontWeight: '600' }}>
-                    Period
-                </Text>
-
-                <View style={{ flexDirection: 'row', gap: 8, marginBottom: 15 }}>
-                    <Chip selected={period === 'weekly'} onPress={() => setPeriod('weekly')}>Weekly</Chip>
-
-                    <Chip selected={period === 'monthly'} onPress={() => setPeriod('monthly')}>Monthly</Chip>
-
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                    <IconButton icon="close" onPress={() => router.back()} accessibilityLabel="Close" />
+                    <Text variant="titleLarge" style={{ fontFamily: 'Times New Roman', fontWeight: 'bold' }}>Add Target</Text>
                 </View>
 
-                <Text style={{ marginTop: 15, marginBottom: 10, fontWeight: '600' }}>
-                    Category
-                </Text>  
+                <Divider style={{ marginBottom: 20 }} />
 
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 15 }}>
-                    {categories.map(category => (
-                        <Chip key={category.id} selected={categoryId === category.id} onPress={() => setCategoryId(category.id)} 
-                              style={{ backgroundColor: categoryId === category.id ? category.color : '#f0f0f0' }}>
-                            {category.name}
+                <Text variant="labelSmall" style={{ opacity: 0.6, marginBottom: 8 }}>Category</Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
+                    <Chip
+                        selected={categoryId === null}
+                        onPress={() => setCategoryId(null)}
+                        style={{ backgroundColor: categoryId === null ? theme.colors.secondary : undefined }}
+                        accessibilityLabel="Select all industries"
+                    >
+                        All Industries
+                    </Chip>
+                    {categories.map(cat => (
+                        <Chip
+                            key={cat.id}
+                            selected={categoryId === cat.id}
+                            onPress={() => setCategoryId(cat.id)}
+                            style={{ backgroundColor: categoryId === cat.id ? theme.colors.secondary : undefined }}
+                            accessibilityLabel={`Select category ${cat.name}`}
+                        >
+                            {cat.name}
                         </Chip>
-                    ))}       
+                    ))}
                 </View>
 
-                <TextInput placeholder="10 jobs" value={goalCount} onChangeText={setGoalCount} keyboardType="numeric"
-                            style={{ borderWidth: 1, marginVertical: 5, padding: 5}}/>
+                <Text variant="labelSmall" style={{ opacity: 0.6, marginBottom: 8 }}>Weekly Goal</Text>
+                <TextInput
+                    label="Number of applications"
+                    value={goalCount}
+                    onChangeText={setGoalCount}
+                    keyboardType="numeric"
+                    mode="outlined"
+                    style={{ marginBottom: 24, backgroundColor: theme.colors.surface }}
+                    accessibilityLabel="Weekly goal count"
+                />
 
-                <Button title="Save" onPress={saveTarget} disabled={!goalCount.trim() || categoryId === null }/>
-            </View>
+                <Button
+                    mode="contained"
+                    onPress={saveTarget}
+                    disabled={!goalCount.trim() || parseInt(goalCount) < 1 || categoryId === undefined}
+                    accessibilityLabel="Save target"
+                >
+                    Save
+                </Button>
+
+            </KeyboardAvoidingView>
         </SafeAreaView>
-    )
+    );
 }

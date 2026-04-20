@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { Button, Card, Divider, Text } from 'react-native-paper';
+import { Button, Card, Divider, ProgressBar, Text, useTheme } from 'react-native-paper';
 
 type Target = {
   id: number;
@@ -43,12 +43,15 @@ function countInRange(
 
 export default function TargetsCard({ targets, applications, categories }: Props) {
   const router = useRouter();
+  const theme = useTheme();
 
   const [cardWidth, setCardWidth] = useState(0);
 
-  if (targets.length === 0) {
+  const validTargets = targets.filter(t => t.goalCount > 0);
+
+  if (validTargets.length === 0) {
     return (
-      <Card style={{ marginBottom: 16 }} onLayout={(e) => setCardWidth(e.nativeEvent.layout.width - 20)} >
+      <Card style={{ marginBottom: 16, backgroundColor: theme.colors.surface }} onLayout={(e) => setCardWidth(e.nativeEvent.layout.width - 20)} >
         <Card.Content>
           <Text variant="titleMedium" style={{ marginBottom: 12 }}>Targets</Text>
           <Text variant="bodyMedium" style={{ opacity: 0.5, marginBottom: 12 }}>
@@ -63,7 +66,7 @@ export default function TargetsCard({ targets, applications, categories }: Props
   }
 
   return (
-    <Card style={{ marginBottom: 16 }}>
+    <Card style={{ marginBottom: 16, backgroundColor: theme.colors.surface }}>
       <Card.Content>
 
         <ScrollView
@@ -75,7 +78,7 @@ export default function TargetsCard({ targets, applications, categories }: Props
         contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
         >
             
-        {targets.map((target) => {
+        {validTargets.map((target) => {
             const isGlobal = target.categoryId === null;
             const category = categories.find(c => c.id === target.categoryId);
             const label = isGlobal ? 'All Industries' : (category?.name ?? '');
@@ -83,7 +86,19 @@ export default function TargetsCard({ targets, applications, categories }: Props
 
             const range = getRange(target.period);
             const progress = countInRange(applications, range.start, range.end, target.categoryId);
-            const met = progress >= target.goalCount;
+
+            const unmet = progress < target.goalCount;
+            const met = progress === target.goalCount;
+            const exceeded = progress > target.goalCount;
+
+            const statusColor = unmet ? theme.colors.error : met ? '#6BBF8E' : '#2E7D52';
+            const statusLabel = unmet
+                ? `${target.goalCount - progress} applications to go!`
+                : met
+                ? 'Target met!'
+                : 'Target exceeded!';
+
+            const progressValue = target.goalCount > 0 ? Math.min(progress / target.goalCount, 1) : 0;
 
             const streak = target.period === 'weekly'
             ? calculateWeeklyStreak(
@@ -99,14 +114,18 @@ export default function TargetsCard({ targets, applications, categories }: Props
                 </Text>
 
                 <Text variant="bodyLarge" style={{ marginTop: 4 }}>
-                Progress: {progress} out of {target.goalCount}
+                {progress} / {target.goalCount}
                 </Text>
 
-                {met && (
-                <Text variant="bodySmall" style={{ color: 'green', marginTop: 2 }}>
-                    Target met ✓
+                <ProgressBar
+                    progress={progressValue}
+                    color={statusColor}
+                    style={{ marginTop: 8, marginBottom: 6, borderRadius: 4, height: 6 }}
+                />
+
+                <Text variant="bodySmall" style={{ color: statusColor }}>
+                    {statusLabel}
                 </Text>
-                )}
 
                 {streak !== null && (
                 <Text variant="bodySmall" style={{ marginTop: 2, opacity: streak > 0 ? 1 : 0.5 }}>

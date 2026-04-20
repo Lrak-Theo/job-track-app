@@ -132,10 +132,7 @@ export default function CompanyStatusMatrix({ applications, statusLogs, categori
   }
 
   return (
-     <View style={{ marginTop: 24, backgroundColor: theme.colors.surface, padding: 12, borderRadius: 12 }}> 
-      <Text style={{ fontSize: 15, fontWeight: '500', marginBottom: 12 }}>
-        Status of applications by company
-      </Text>
+     <View style={{ marginTop: 24, backgroundColor: theme.colors.surface, padding: 12, borderRadius: 12 }}>
       {content}
     </View>
   );

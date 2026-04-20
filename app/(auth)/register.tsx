@@ -4,7 +4,7 @@ import bcrypt from '@/utils/passwordcrypto';
 import { eq } from 'drizzle-orm';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Text, TextInput, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -25,7 +25,7 @@ export default function RegisterScreen() {
 
         // Adding constraints to the input fields
         if (!firstName.trim() || !lastName.trim() || !email.trim() || !password.trim()) {
-            setError('Email and password are required.');
+            setError('All fields are required.');
             return;
         }
 
@@ -77,82 +77,59 @@ export default function RegisterScreen() {
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.colors.background }]}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
 
-        <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onBackground }]}>
-          Create Account
+        <View style={styles.header}>
+          <Image
+            source={require('@/assets/images/Sauron-Brand-Icon.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <Text variant="displaySmall" style={{ fontFamily: 'Times New Roman', fontWeight: 'bold', color: theme.colors.onBackground }}>
+            Sauron
+          </Text>
+        </View>
+        <Text variant="bodyMedium" style={[styles.subtitle, { color: theme.colors.onBackground, fontFamily: 'Times New Roman' }]}>
+          Create an account
         </Text>
-        <Text variant="bodyMedium" style={[styles.subtitle, { color: theme.colors.onBackground }]}>
-          Track your job applications
-        </Text>
 
-        <TextInput
-        label="First Name"
-        value={firstName}
-        onChangeText={setFirstName}
-        mode="outlined"
-        style={styles.input}
+        <TextInput label="First Name" value={firstName} onChangeText={setFirstName}
+          mode="outlined" style={styles.input} accessibilityLabel="First name"
         />
 
-        <TextInput
-        label="Last Name"
-        value={lastName}
-        onChangeText={setLastName}
-        mode="outlined"
-        style={styles.input}
-        />
-        
-        <TextInput
-          label="Email"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          mode="outlined"
-          style={styles.input}
+        <TextInput label="Last Name" value={lastName} onChangeText={setLastName}
+          mode="outlined" style={styles.input} accessibilityLabel="Last name"
         />
 
-        <TextInput
-          label="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          mode="outlined"
-          style={styles.input}
+        <TextInput label="Email" value={email} onChangeText={setEmail} autoCapitalize="none"
+          keyboardType="email-address" mode="outlined" style={styles.input} accessibilityLabel="Email address"
         />
 
-        <TextInput
-          label="Confirm Password"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
-          mode="outlined"
-          style={styles.input}
+        <TextInput label="Password" value={password} onChangeText={setPassword} secureTextEntry
+          mode="outlined" style={styles.input} accessibilityLabel="Password"
+        />
+
+        <TextInput label="Confirm Password" value={confirmPassword} onChangeText={setConfirmPassword}
+          secureTextEntry mode="outlined" style={styles.input} accessibilityLabel="Confirm password"
         />
 
         {error ? (
           <Text style={[styles.error, { color: theme.colors.error }]}>{error}</Text>
         ) : null}
 
-        <Button
-          mode="contained"
-          onPress={handleRegister}
-          loading={loading}
-          disabled={loading}
-          style={styles.button}
+        <Button mode="contained" onPress={handleRegister} loading={loading} disabled={loading}
+          style={styles.button} accessibilityLabel="Create your account"
         >
           Register
         </Button>
 
-        <Button
-          mode="text"
-          onPress={() => router.replace('/(auth)/login')}
-          style={styles.link}
-        >
+        <Button mode="text" onPress={() => router.replace('/(auth)/login')} style={styles.link} accessibilityLabel="Go to login screen">
           Already have an account? Log in
         </Button>
 
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -160,7 +137,8 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: { padding: 24, paddingTop: 48 },
-  title: { fontWeight: '700', marginBottom: 4 },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
+  logo: { width: 100, height: 100 },
   subtitle: { marginBottom: 32, opacity: 0.7 },
   input: { marginBottom: 16 },
   error: { marginBottom: 12, fontSize: 14 },

@@ -40,30 +40,27 @@ export default function StatusBreakdownChart( { statusLogs }: Props) {
         content = <Text>No status data yet</Text>;
     } else {
         content = (
-            <View>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <PieChart data={chartData} donut radius={90} innerRadius={55} innerCircleColor={theme.colors.surface}
                 centerLabelComponent={() => (
-                    <Text style={{ color: theme.colors.onSurface }}>{statusLogs.length} total</Text> 
+                    <Text style={{ color: theme.colors.onSurface }}>{statusLogs.length} total</Text>
                 )}
                 isAnimated animationDuration={500}/>
-            
-            <View>
-                {chartData.map(item => (
-                    <View key={item.text} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 }}>
-                    <View style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: item.color }} />
-                    <Text>{item.text} · {item.value}</Text>
-                    </View>
-                ))}
-            </View>
 
-            
+                <View style={{ marginLeft: 16, gap: 8 }}>
+                    {chartData.map(item => (
+                        <View key={item.text} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                            <View style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: item.color }} />
+                            <Text>{item.text} · {item.value}</Text>
+                        </View>
+                    ))}
+                </View>
             </View>
         );
     }
 
     return (
-        <View style={{ backgroundColor: theme.colors.surface, padding: 12, borderRadius: 12 }}> 
-            <Text>Status breakdown</Text>
+        <View style={{ backgroundColor: theme.colors.surface, padding: 12, borderRadius: 12 }}>
             {content}
         </View>
     );

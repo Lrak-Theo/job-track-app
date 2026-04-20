@@ -139,7 +139,6 @@ export default function MarketSalaryComparisonChart({ applications }: Props) {
  
     return (
         <View style={{ backgroundColor: theme.colors.surface, padding: 12, borderRadius: 12, marginTop: 16, paddingTop: 24 }}>
-            <Text variant="titleSmall">Market salary comparison</Text>
             <Text variant="bodySmall" style={{ opacity: 0.6, marginBottom: 8 }}>
                 Estimated Irish market rate (UK adjusted GBP/EUR) · Most appeared job titles in your applications · via Adzuna
             </Text>

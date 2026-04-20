@@ -40,7 +40,7 @@ export default function ExportButton() {
     };
 
     return (
-        <IconButton icon="export-variant" mode="contained-tonal" 
+        <IconButton icon="export-variant"
             onPress={handleExport} accessibilityLabel="Export applications as CSV"/>
     );
 }

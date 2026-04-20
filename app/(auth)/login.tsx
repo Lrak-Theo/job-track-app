@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { eq } from 'drizzle-orm';
 import { useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Text, TextInput, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AuthContext } from '../_layout';
@@ -71,32 +71,29 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.colors.background }]}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
 
-        <Text variant="headlineLarge" style={[styles.title, { color: theme.colors.primary }]}>
-          Sauron
-        </Text>
-        <Text variant="bodyMedium" style={[styles.subtitle, { color: theme.colors.onBackground }]}>
-          Track your job applications
+        <View style={styles.header}>
+          <Image
+            source={require('@/assets/images/Sauron-Brand-Icon.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <Text variant="displaySmall" style={{ fontFamily: 'Times New Roman', fontWeight: 'bold', color: theme.colors.onBackground }}>
+            Sauron
+          </Text>
+        </View>
+        <Text variant="bodyMedium" style={[styles.subtitle, { color: theme.colors.onBackground, fontFamily: 'Times New Roman' }]}>
+          Login to access the app
         </Text>
 
-        <TextInput
-          label="Email"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          mode="outlined"
-          style={styles.input}
+        <TextInput label="Email" value={email} onChangeText={setEmail} autoCapitalize="none"
+          keyboardType="email-address" mode="outlined" style={styles.input} accessibilityLabel="Email address"
         />
 
-        <TextInput
-          label="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          mode="outlined"
-          style={styles.input}
+        <TextInput label="Password" value={password} onChangeText={setPassword} secureTextEntry
+          mode="outlined" style={styles.input} accessibilityLabel="Password"
         />
 
         {error ? (
@@ -104,24 +101,20 @@ export default function LoginScreen() {
         ) : null}
 
         <Button
-          mode="contained"
-          onPress={handleLogin}
-          loading={loading}
-          disabled={loading}
-          style={styles.button}
+          mode="contained" onPress={handleLogin} loading={loading} disabled={loading}
+          style={styles.button} accessibilityLabel="Log in to your account"
         >
           Log In
         </Button>
 
-        <Button
-          mode="text"
-          onPress={() => router.replace('/(auth)/register')}
-          style={styles.link}
+        <Button mode="text" onPress={() => router.replace('/(auth)/register')}
+          style={styles.link} accessibilityLabel="Go to register screen"
         >
           Don't have an account? Register
         </Button>
 
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -129,7 +122,8 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: { padding: 24, paddingTop: 80 },
-  title: { fontWeight: '800', fontSize: 42, marginBottom: 4 },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
+  logo: { width: 100, height: 100 },
   subtitle: { marginBottom: 40, opacity: 0.7 },
   input: { marginBottom: 16 },
   error: { marginBottom: 12, fontSize: 14 },

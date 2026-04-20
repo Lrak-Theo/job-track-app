@@ -1,7 +1,6 @@
 import { Application, Category } from '@/app/_layout';
-import { useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
-import { Card, Text, useTheme } from 'react-native-paper';
+import { Card, Chip, Text, useTheme } from 'react-native-paper';
 
 type JobCardProp = {
     application: Application;
@@ -11,36 +10,38 @@ type JobCardProp = {
 
 
 export default function JobCard({ application, category, onPress }: JobCardProp) {
-    const router = useRouter();
     const theme = useTheme();
 
     return (
-        <Pressable onPress={onPress}>
-            <View style={{ flex: 1, paddingTop: 16 }}>
+        <Pressable onPress={onPress} accessibilityLabel={`${application.jobTitle} at ${application.jobCompany}`}>
+            <View style={{ flex: 1 }}>
             {/* The card of job row */}
-                <Card style={{ marginBottom: 15, backgroundColor: theme.colors.surface }}>
+                <Card style={{ marginBottom: 12, backgroundColor: theme.colors.surface }}>
                     <Card.Content>
                         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
                             {/* Becareful of trailing spaces in style={{" "}} as it can prevent the format from happening*/}
-                            <Text>{application.jobCompany}</Text>
+                            <Text variant="titleMedium">{application.jobCompany}</Text>
                         </View>
 
-                        <Text style={{ marginTop: 3 }}>
+                        <Text variant="bodyMedium" style={{ marginTop: 2 }}>
                             {application.jobTitle}
                         </Text>
 
-                        <Text style={{ marginTop: 3 }}>
-                            {category.name}
-                        </Text>
+                        {/* Category dot + name */}
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 }}>
+                            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: category.color }} />
+                            <Text variant="bodySmall" style={{ opacity: 0.6 }}>{category.name}</Text>
+                        </View>
 
-                        <Text style= {{ marginTop: 6, opacity: 0.6 }}>
-                            {application.applyDate}
-                        </Text>
-
-                        <Text style= {{ marginTop: 6, opacity: 0.6 }}>
-                            {application.status}
-                        </Text>
-                
+                        {/* Date + status on the same row */}
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+                            <Text variant="bodySmall" style={{ opacity: 0.6 }}>
+                                {application.applyDate}
+                            </Text>
+                            <Chip compact accessibilityLabel={`Status: ${application.status}`}>
+                                {application.status}
+                            </Chip>
+                        </View>
 
                     </Card.Content>
                 </Card>

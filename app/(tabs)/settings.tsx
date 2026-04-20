@@ -1,9 +1,8 @@
 import { cancelReminder, scheduleWeeklyReminder } from '@/utils/notifications';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { eq } from 'drizzle-orm';
-import { useRouter } from 'expo-router';
 import { useContext, useEffect, useState } from "react";
-import { Alert, ScrollView } from "react-native";
+import { Alert, Image, ScrollView, View } from "react-native";
 import { Divider, List, Switch, Text, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { db } from '../../db/client';
@@ -13,13 +12,16 @@ import { AuthContext, ThemeContext } from "../_layout";
 
 export default function SettingsScreen() { 
 
-    const router = useRouter()
+    // Load the context and theme
     const authContext = useContext(AuthContext);
-
     const {isDarkMode, toggleTheme} = useContext(ThemeContext);
     const theme = useTheme();
+
+    // set the state values 
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
+
+    // Handlers logic
     // Adding logout for user
     const handleLogout = async () => {
         await authContext?.logout();
@@ -33,7 +35,7 @@ export default function SettingsScreen() {
             [
                 { text: 'Cancel', style: 'cancel'},
                 {
-                    text: 'Dete',
+                    text: 'Delete',
                     style: 'destructive', onPress: async () => {
                         const userId = authContext?.currentUser?.id;
 
@@ -50,13 +52,6 @@ export default function SettingsScreen() {
         )
     }
 
-
-    useEffect(() => {
-        AsyncStorage.getItem('notificationsEnabled').then((val) => {
-            if (val !== null) setNotificationsEnabled(val === 'true');
-        });
-    }, []);
-
     const handleNotificationToggle = async (value: boolean) => { 
         setNotificationsEnabled(value);
         await AsyncStorage.setItem('notificationsEnabled', String(value));
@@ -66,15 +61,25 @@ export default function SettingsScreen() {
             await cancelReminder();
         }
     }; 
+    
+
+    // Effects...
+    useEffect(() => {
+        AsyncStorage.getItem('notificationsEnabled').then((val) => {
+            if (val !== null) setNotificationsEnabled(val === 'true');
+        });
+    }, []);
+
 
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
-            <ScrollView contentContainerStyle={{ padding: 16, backgroundColor: theme.colors.background }}>
+            <ScrollView contentContainerStyle={{ padding: 20, backgroundColor: theme.colors.background }}>
 
-                <Text variant="headlineMedium" style={{ marginBottom: 24 }}>
-                    Settings
-                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+                    <Image source={require('@/assets/images/Sauron-Brand-Icon.png')} style={{ width: 72, height: 72 }} resizeMode="contain" />
+                    <Text variant="headlineMedium" style={{ fontFamily: 'Times New Roman', fontWeight: 'bold' }}>Sauron</Text>
+                </View>
 
                 {/* Feature to switch from either light mode or dark mode */}
                 <Text variant="labelLarge" style={{ marginBottom: 8 }}>

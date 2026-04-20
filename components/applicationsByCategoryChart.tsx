@@ -69,7 +69,6 @@ export default function ApplicationsByCategoryChart({ applications, categories, 
 
     return (
         <View style={{ backgroundColor: theme.colors.surface, padding: 12, borderRadius: 12 }}>
-            <Text>Applications by category</Text>
             {content}
         </View>
     )

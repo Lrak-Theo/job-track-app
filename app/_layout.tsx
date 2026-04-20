@@ -8,6 +8,7 @@ import { eq } from 'drizzle-orm';
 import * as Notifications from "expo-notifications";
 import { Stack, useRouter } from "expo-router"; // Stack is a React component responsible for a form of navigation
 import { createContext, useEffect, useState } from "react";
+import { StatusBar } from "react-native";
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context"; // Since IOS is the emulator in use, having a global safe area view is needed
 import { db } from "../db/client";
@@ -97,13 +98,16 @@ const myDarkTheme = {
   colors: {
     ...MD3DarkTheme.colors,
     background: '#2C2329',
-    surface: '#3D3138',
-    primary: '#9D5C63',
+    surface: '#5C5059',
+    primary: '#C47B83',
     secondary: '#E4BB97',
-    surfaceVariant: '#4A3F55',
-    onBackground: '#FEF5EF',
-    onSurface: '#FEF5EF',
+    surfaceVariant: '#6B5F78',
+    onBackground: '#F5EDE8',
+    onSurface: '#F5EDE8',
     onPrimary: '#FFFFFF',
+    outline: '#9A8A94',
+    secondaryContainer: '#6B4A3A',
+    onSecondaryContainer: '#F5EDE8',
   }
 };
 
@@ -120,14 +124,15 @@ Notifications.setNotificationHandler({
 
 export default function Base () {
 
+  // Set state and theme 
   const router = useRouter();
-
   const [currentUser, setCurrentUser] = useState <User | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [statusLogs, setStatusLogs] = useState<StatusLog[]>([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
+  // Load data from the DB
   const loadUserData = async (userId: number) => { 
     const applicationRows = await db.select().from(applicationsTable).where(eq(applicationsTable.userId, userId));
     const categoryRows = await db.select().from(categoriesTable);
@@ -138,6 +143,7 @@ export default function Base () {
     setStatusLogs(applicationstatuslogRows);
   };
 
+  // Effects...
   useEffect(() => {
 
     async function initNotifications() {
@@ -200,6 +206,8 @@ export default function Base () {
     load();
   }, []);
 
+
+  // Handlers...
   const logout = async () => {
     await AsyncStorage.removeItem('session_user_id');
     setCurrentUser(null);
@@ -214,6 +222,7 @@ export default function Base () {
     await AsyncStorage.setItem(Theme_Key, next ? 'dark' : 'light' );
   }
 
+  // Fetch theme...
   const theme = isDarkMode ? myDarkTheme : myLightTheme;
 
 
@@ -222,6 +231,7 @@ export default function Base () {
       <AuthContext.Provider value={{ currentUser, setCurrentUser, logout, loadUserData }}>
         <ApplicationContext.Provider value={{ applications, setApplications, categories, setCategories, statusLogs, setStatusLogs }}> 
           <SafeAreaProvider>
+            <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
             <PaperProvider theme={theme}>
               <Stack screenOptions={{ headerShown: false  }}>
 
