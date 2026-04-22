@@ -4,7 +4,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import Papa from 'papaparse';
 import { useContext } from 'react';
-import { IconButton } from 'react-native-paper';
+import { Button } from 'react-native-paper';
 
 export default function ExportButton() {
     const context = useContext(ApplicationContext);
@@ -40,7 +40,14 @@ export default function ExportButton() {
     };
 
     return (
-        <IconButton icon="export-variant"
-            onPress={handleExport} accessibilityLabel="Export applications as CSV"/>
+        <Button
+            icon="export-variant"
+            mode="text"
+            onPress={handleExport}
+            accessibilityLabel="Export applications as CSV"
+            compact
+        >
+            Export as CSV
+        </Button>
     );
 }

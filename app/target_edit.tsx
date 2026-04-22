@@ -3,7 +3,8 @@ import { eq } from 'drizzle-orm';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, View } from 'react-native';
-import { Button, Divider, IconButton, Text, TextInput, useTheme } from 'react-native-paper';
+import FormField from '@/components/ui/form-field';
+import { Button, Divider, IconButton, Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { db } from '../db/client';
 
@@ -43,15 +44,7 @@ export default function EditTarget() {
                 <Divider style={{ marginBottom: 20 }} />
 
                 <Text variant="labelSmall" style={{ opacity: 0.6, marginBottom: 8 }}>Weekly Goal</Text>
-                <TextInput
-                    label="Number of applications"
-                    value={goalCount}
-                    onChangeText={setGoalCount}
-                    keyboardType="numeric"
-                    mode="outlined"
-                    style={{ marginBottom: 24, backgroundColor: theme.colors.surface }}
-                    accessibilityLabel="Weekly goal count"
-                />
+                <FormField label="Number of applications" value={goalCount} onChangeText={setGoalCount} keyboardType="numeric" />
 
                 <Button
                     mode="contained"

@@ -2,11 +2,13 @@ import { applicationsTable, applicationStatusLogsTable } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
-import { View } from 'react-native';
-import { Button, Chip, Divider, IconButton, Text, useTheme } from 'react-native-paper';
+import { ScrollView, View } from 'react-native';
+import { Button, Chip, Divider, IconButton, Text, TextInput, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { db } from '../../db/client';
 import { Application, ApplicationContext, Category } from '../_layout';
+
+const STATUSES = ['Applied', 'Interviewing', 'Offered', 'Rejected', 'Withdrawn'];
 
 export default function ApplicationDetail() {
 
@@ -21,8 +23,9 @@ export default function ApplicationDetail() {
         (a: Application) => a.id === Number(id)
     );
 
-    // Set state value
+    // Set state values
     const [status, setStatus] = useState(application?.status ?? 'Applied');
+    const [notes, setNotes] = useState(application?.notes ?? '');
 
     // Early error handling
     if (!context) return null;
@@ -50,19 +53,33 @@ export default function ApplicationDetail() {
         setStatusLogs(updatedLogs);
     };
 
-    const deleteApplication = async () => {
-        await db.delete(applicationsTable)
+    const saveNotes = async () => {
+        await db.update(applicationsTable)
+            .set({ notes: notes.trim() || null })
             .where(eq(applicationsTable.id, Number(id)));
 
         const rows = await db.select().from(applicationsTable);
         setApplications(rows);
+    };
+
+    const deleteApplication = async () => {
+        await db.delete(applicationStatusLogsTable)
+            .where(eq(applicationStatusLogsTable.applicationId, Number(id)));
+
+        await db.delete(applicationsTable)
+            .where(eq(applicationsTable.id, Number(id)));
+
+        const rows = await db.select().from(applicationsTable);
+        const updatedLogs = await db.select().from(applicationStatusLogsTable);
+        setApplications(rows);
+        setStatusLogs(updatedLogs);
 
         router.back();
     };
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
-            <View style={{ padding: 20 }}>
+            <ScrollView style={{ padding: 20 }}>
 
                 {/* Header row: back button */}
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
@@ -87,24 +104,52 @@ export default function ApplicationDetail() {
                 <Text variant="labelSmall" style={{ opacity: 0.6, marginBottom: 4 }}>Date Applied</Text>
                 <Text variant="bodyMedium" style={{ marginBottom: 16 }}>{application.applyDate}</Text>
 
+                {/* Notes — inline editable */}
+                <Text variant="labelSmall" style={{ opacity: 0.6, marginBottom: 8 }}>Notes</Text>
+                <TextInput
+                    value={notes}
+                    onChangeText={setNotes}
+                    placeholder="Add a note..."
+                    multiline
+                    numberOfLines={3}
+                    style={{ marginBottom: 8, backgroundColor: theme.colors.surface }}
+                    accessibilityLabel="Notes"
+                />
+                <Button
+                    mode="text"
+                    onPress={saveNotes}
+                    disabled={notes.trim() === (application.notes ?? '')}
+                    accessibilityLabel="Save notes"
+                    style={{ alignSelf: 'flex-end', marginBottom: 16 }}
+                    compact
+                >
+                    Save Notes
+                </Button>
+
+                <Divider style={{ marginVertical: 4 }} />
+
                 {/* Status — interactive chips */}
-                <Text variant="labelSmall" style={{ opacity: 0.6, marginBottom: 8 }}>Status</Text>
+                <Text variant="labelSmall" style={{ opacity: 0.6, marginBottom: 8, marginTop: 16 }}>Status</Text>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
-                    <Chip selected={status === 'Applied'} onPress={() => setStatus('Applied')} accessibilityLabel="Set status to Applied">
-                        Applied
-                    </Chip>
-                    <Chip selected={status === 'Interviewing'} onPress={() => setStatus('Interviewing')} accessibilityLabel="Set status to Interviewing">
-                        Interviewing
-                    </Chip>
-                    <Chip selected={status === 'Offered'} onPress={() => setStatus('Offered')} accessibilityLabel="Set status to Offered">
-                        Offered
-                    </Chip>
-                    <Chip selected={status === 'Rejected'} onPress={() => setStatus('Rejected')} accessibilityLabel="Set status to Rejected">
-                        Rejected
-                    </Chip>
-                    <Chip selected={status === 'Withdrawn'} onPress={() => setStatus('Withdrawn')} accessibilityLabel="Set status to Withdrawn">
-                        Withdrawn
-                    </Chip>
+                    {STATUSES.map((s) => {
+                        const isSelected = status === s;
+                        return (
+                            <Chip
+                                key={s}
+                                selected={isSelected}
+                                onPress={() => setStatus(s)}
+                                style={{
+                                    backgroundColor: isSelected ? theme.colors.primary : theme.colors.surfaceVariant,
+                                }}
+                                textStyle={{
+                                    color: isSelected ? theme.colors.onPrimary : theme.colors.onSurface,
+                                }}
+                                accessibilityLabel={`Set status to ${s}`}
+                            >
+                                {s}
+                            </Chip>
+                        );
+                    })}
                 </View>
 
                 <Button
@@ -135,13 +180,13 @@ export default function ApplicationDetail() {
                     mode="outlined"
                     textColor={theme.colors.error}
                     onPress={deleteApplication}
-                    style={{ marginBottom: 10, borderColor: theme.colors.error }}
+                    style={{ marginBottom: 32, borderColor: theme.colors.error }}
                     accessibilityLabel="Delete this application"
                 >
                     Delete
                 </Button>
 
-            </View>
+            </ScrollView>
         </SafeAreaView>
     );
 }

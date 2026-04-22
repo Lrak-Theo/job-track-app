@@ -1,8 +1,10 @@
 import { categoriesTable, targetsTable } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 import { useRouter } from 'expo-router';
 import { useContext, useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, View } from 'react-native';
-import { Button, Chip, Divider, IconButton, Text, TextInput, useTheme } from 'react-native-paper';
+import FormField from '@/components/ui/form-field';
+import { Button, Chip, Divider, IconButton, Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { db } from '../db/client';
 import { AuthContext } from './_layout';
@@ -19,12 +21,14 @@ export default function AddTarget() {
 
     // Set state values
     const [goalCount, setGoalCount] = useState('');
+    const [period, setPeriod] = useState<'weekly' | 'monthly'>('weekly');
     const [categoryId, setCategoryId] = useState<number | null | undefined>(undefined);
     const [categories, setCategories] = useState<Category[]>([]);
 
     // Effects...
     useEffect(() => {
-        db.select().from(categoriesTable).then(setCategories);
+        if (!currentUser?.id) return;
+        db.select().from(categoriesTable).where(eq(categoriesTable.userId, currentUser.id)).then(setCategories);
     }, []);
 
     // Handler...
@@ -33,7 +37,7 @@ export default function AddTarget() {
 
         await db.insert(targetsTable).values({
             userId: currentUser!.id,
-            period: 'weekly',
+            period,
             goalCount: parseInt(goalCount),
             categoryId,
             createdAt: new Date().toISOString().split('T')[0],
@@ -52,6 +56,26 @@ export default function AddTarget() {
                 </View>
 
                 <Divider style={{ marginBottom: 20 }} />
+
+                <Text variant="labelSmall" style={{ opacity: 0.6, marginBottom: 8 }}>Period</Text>
+                <View style={{ flexDirection: 'row', gap: 8, marginBottom: 24 }}>
+                    <Chip
+                        selected={period === 'weekly'}
+                        onPress={() => setPeriod('weekly')}
+                        style={{ backgroundColor: period === 'weekly' ? theme.colors.secondary : undefined }}
+                        accessibilityLabel="Select weekly period"
+                    >
+                        Weekly
+                    </Chip>
+                    <Chip
+                        selected={period === 'monthly'}
+                        onPress={() => setPeriod('monthly')}
+                        style={{ backgroundColor: period === 'monthly' ? theme.colors.secondary : undefined }}
+                        accessibilityLabel="Select monthly period"
+                    >
+                        Monthly
+                    </Chip>
+                </View>
 
                 <Text variant="labelSmall" style={{ opacity: 0.6, marginBottom: 8 }}>Category</Text>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
@@ -76,16 +100,8 @@ export default function AddTarget() {
                     ))}
                 </View>
 
-                <Text variant="labelSmall" style={{ opacity: 0.6, marginBottom: 8 }}>Weekly Goal</Text>
-                <TextInput
-                    label="Number of applications"
-                    value={goalCount}
-                    onChangeText={setGoalCount}
-                    keyboardType="numeric"
-                    mode="outlined"
-                    style={{ marginBottom: 24, backgroundColor: theme.colors.surface }}
-                    accessibilityLabel="Weekly goal count"
-                />
+                <Text variant="labelSmall" style={{ opacity: 0.6, marginBottom: 8 }}>{period === 'weekly' ? 'Weekly' : 'Monthly'} Goal</Text>
+                <FormField label="Number of applications" value={goalCount} onChangeText={setGoalCount} keyboardType="numeric" />
 
                 <Button
                     mode="contained"

@@ -1,5 +1,6 @@
 import { categoriesTable, targetsTable } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useContext, useState } from 'react';
 import { Alert, View } from 'react-native';
@@ -29,7 +30,7 @@ export default function ManageTargets() {
             const load = async () => {
                 const [rows, cats] = await Promise.all([
                     db.select().from(targetsTable).where(eq(targetsTable.userId, currentUser!.id)),
-                    db.select().from(categoriesTable),
+                    db.select().from(categoriesTable).where(eq(categoriesTable.userId, currentUser!.id)),
                 ]);
                 setTargets(rows);
                 setCategories(cats);
@@ -61,7 +62,7 @@ export default function ManageTargets() {
             <Card key={target.id} style={{ marginBottom: 10, backgroundColor: theme.colors.surface }}>
                 <Card.Content style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <View>
-                        <Text variant="labelSmall" style={{ opacity: 0.6 }}>Weekly · {label}</Text>
+                        <Text variant="labelSmall" style={{ opacity: 0.6 }}>{target.period === 'weekly' ? 'Weekly' : 'Monthly'} · {label}</Text>
                         <Text variant="titleMedium">{target.goalCount} applications</Text>
                     </View>
                     <View style={{ flexDirection: 'row' }}>

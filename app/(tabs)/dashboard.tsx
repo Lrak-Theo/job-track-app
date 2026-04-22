@@ -11,7 +11,7 @@ import { eq } from 'drizzle-orm';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useContext, useMemo, useState } from "react";
 import { ScrollView, View } from 'react-native';
-import { Button, Chip, Divider, Menu, Text, useTheme } from "react-native-paper";
+import { Button, Divider, Menu, Text, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type Target = {
@@ -107,11 +107,6 @@ export default function dashboard() {
         all: 'All time'
     };
 
-    const activeCategoryName = selectedCategoryId !== null
-        ? categories.find(c => c.id === selectedCategoryId)?.name ?? 'Unknown'
-        : null;
-
-
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -130,6 +125,7 @@ export default function dashboard() {
                     <Menu
                         visible={menuVisible}
                         onDismiss={() => setMenuVisible(false)}
+                        contentStyle={{ backgroundColor: '#FFFFFF' }}
                         anchor={
                             <Button
                                 onPress={() => setMenuVisible(true)}
@@ -139,25 +135,13 @@ export default function dashboard() {
                             </Button>
                         }>
 
-                        <Menu.Item onPress={() => { setSelectedPeriod('day'); setMenuVisible(false); }} title="Today" />
-                        <Menu.Item onPress={() => { setSelectedPeriod('week'); setMenuVisible(false); }} title="This week" />
-                        <Menu.Item onPress={() => { setSelectedPeriod('month'); setMenuVisible(false); }} title="This month" />
-                        <Menu.Item onPress={() => { setSelectedPeriod('all'); setMenuVisible(false); }} title="All time" />
+                        <Menu.Item onPress={() => { setSelectedPeriod('day'); setMenuVisible(false); }} title="Today" titleStyle={{ color: '#584B53' }} />
+                        <Menu.Item onPress={() => { setSelectedPeriod('week'); setMenuVisible(false); }} title="This week" titleStyle={{ color: '#584B53' }} />
+                        <Menu.Item onPress={() => { setSelectedPeriod('month'); setMenuVisible(false); }} title="This month" titleStyle={{ color: '#584B53' }} />
+                        <Menu.Item onPress={() => { setSelectedPeriod('all'); setMenuVisible(false); }} title="All time" titleStyle={{ color: '#584B53' }} />
 
                     </Menu>
 
-                    {/* Show active category filter with name so user knows what's filtered */}
-                    {activeCategoryName !== null && (
-                        <Chip
-                            compact
-                            onClose={() => setSelectedCategoryId(null)}
-                            onPress={() => setSelectedCategoryId(null)}
-                            accessibilityLabel={`Filtered by category ${activeCategoryName}, press to clear`}
-                            style={{ marginLeft: 8 }}
-                        >
-                            {activeCategoryName}
-                        </Chip>
-                    )}
                 </View>
 
                 <Divider style={{ marginBottom: 16 }}/>

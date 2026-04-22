@@ -1,6 +1,7 @@
 import { Application, Category } from '@/app/_layout';
 import { Pressable, View } from 'react-native';
-import { Card, Chip, Text, useTheme } from 'react-native-paper';
+import { Card, Chip, Icon, Text, useTheme } from 'react-native-paper';
+
 
 type JobCardProp = {
     application: Application;
@@ -19,8 +20,10 @@ export default function JobCard({ application, category, onPress }: JobCardProp)
                 <Card style={{ marginBottom: 12, backgroundColor: theme.colors.surface }}>
                     <Card.Content>
                         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
-                            {/* Becareful of trailing spaces in style={{" "}} as it can prevent the format from happening*/}
                             <Text variant="titleMedium">{application.jobCompany}</Text>
+                            {application.notes ? (
+                                <Icon source="note-text-outline" size={16} color={theme.colors.primary} />
+                            ) : null}
                         </View>
 
                         <Text variant="bodyMedium" style={{ marginTop: 2 }}>
@@ -38,7 +41,12 @@ export default function JobCard({ application, category, onPress }: JobCardProp)
                             <Text variant="bodySmall" style={{ opacity: 0.6 }}>
                                 {application.applyDate}
                             </Text>
-                            <Chip compact accessibilityLabel={`Status: ${application.status}`}>
+                            <Chip
+                                compact
+                                accessibilityLabel={`Status: ${application.status}`}
+                                style={{ backgroundColor: theme.colors.secondary }}
+                                textStyle={{ color: '#584B53', fontSize: 11, fontWeight: 'bold' }}
+                            >
                                 {application.status}
                             </Chip>
                         </View>

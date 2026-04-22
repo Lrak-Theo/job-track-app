@@ -4,7 +4,7 @@ import { ScrollView, View } from "react-native";
 import { Chip, Divider, FAB, IconButton, Text, TextInput } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context"; // SAV is used to prevent the page content to layer on top of the IOS head bar
 import JobCard from "../../components/JobCard";
-import { Application, ApplicationContext, Category } from "../_layout";
+import { Application, ApplicationContext, Category, ThemeContext } from "../_layout";
 
 import { sqlite } from '@/db/client';
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin';
@@ -19,7 +19,10 @@ export default function ListPage() {
     // Set the context and theme
     const router = useRouter();
     const context = useContext(ApplicationContext);
-    const theme = useTheme(); // Moved above conditional return to satisfy Rules of Hooks
+    const { isDarkMode } = useContext(ThemeContext);
+    const theme = useTheme();
+    const chipSelectedBg = isDarkMode ? '#6B4A3A' : '#E4BB97';
+    const chipSelectedText = isDarkMode ? '#FFFFFF' : '#584B53';
 
     // ORM... 
     useDrizzleStudio(sqlite);
@@ -97,7 +100,14 @@ export default function ListPage() {
             <View style={{ alignItems: 'center', marginTop: 40, gap: 12 }}>
                 <Text variant="titleMedium" style={{ textAlign: 'center' }}>No matches found</Text>
                 <Text variant="bodyMedium" style={{ textAlign: 'center', opacity: 0.6 }}>Try adjusting your filters or search term</Text>
-                <Chip onPress={clearAllFilters} accessibilityLabel="Clear all filters">Clear filters</Chip>
+                <Chip
+                    onPress={clearAllFilters}
+                    accessibilityLabel="Clear all filters"
+                    style={{ backgroundColor: isDarkMode ? '#6B4A3A' : '#E4BB97' }}
+                    textStyle={{ color: isDarkMode ? '#FFFFFF' : '#584B53', fontWeight: 'bold' }}
+                >
+                    Clear filters
+                </Chip>
             </View>
         );
     } else {
@@ -152,7 +162,10 @@ export default function ListPage() {
                         Showing {filteredApplications.length} of {applications.length}
                     </Text>
                     {filtersActive && (
-                        <Chip compact onPress={clearAllFilters} accessibilityLabel="Clear all filters">
+                        <Chip compact onPress={clearAllFilters} accessibilityLabel="Clear all filters"
+                            style={{ backgroundColor: isDarkMode ? '#6B4A3A' : '#E4BB97' }}
+                            textStyle={{ fontWeight: 'bold' }}
+                        >
                             Clear all
                         </Chip>
                     )}
@@ -168,24 +181,28 @@ export default function ListPage() {
                         {/* ScrollView (line above) enables the user to swipe across the filters */}
                             <View style ={{ flexDirection: "row", gap: 10, marginBottom: 12, marginTop: 6 }}>
 
-                                <Chip selected={ selectedStatus === 'All'} onPress={() => setSelectedStatus('All')} accessibilityLabel="Filter by all statuses" style={{ backgroundColor: selectedStatus === 'All' ? theme.colors.secondary : undefined }}>
+                                <Chip selected={ selectedStatus === 'All'} onPress={() => setSelectedStatus('All')} accessibilityLabel="Filter by all statuses" style={{ backgroundColor: selectedStatus === 'All' ? chipSelectedBg : undefined }} textStyle={{ color: selectedStatus === 'All' ? chipSelectedText : theme.colors.onSurface }}>
                                     All
                                 </Chip>
 
-                                <Chip selected={ selectedStatus === 'Applied'} onPress={() => setSelectedStatus('Applied')} accessibilityLabel="Filter by Applied status" style={{ backgroundColor: selectedStatus === 'Applied' ? theme.colors.secondary : undefined }}>
+                                <Chip selected={ selectedStatus === 'Applied'} onPress={() => setSelectedStatus('Applied')} accessibilityLabel="Filter by Applied status" style={{ backgroundColor: selectedStatus === 'Applied' ? chipSelectedBg : undefined }} textStyle={{ color: selectedStatus === 'Applied' ? chipSelectedText : theme.colors.onSurface }}>
                                     Applied
                                 </Chip>
 
-                                <Chip selected={ selectedStatus === 'Interviewed'} onPress={() => setSelectedStatus('Interviewed')} accessibilityLabel="Filter by Interviewed status" style={{ backgroundColor: selectedStatus === 'Interviewed' ? theme.colors.secondary : undefined }}>
-                                    Interviewed
+                                <Chip selected={ selectedStatus === 'Interviewing'} onPress={() => setSelectedStatus('Interviewing')} accessibilityLabel="Filter by Interviewing status" style={{ backgroundColor: selectedStatus === 'Interviewing' ? chipSelectedBg : undefined }} textStyle={{ color: selectedStatus === 'Interviewing' ? chipSelectedText : theme.colors.onSurface }}>
+                                    Interviewing
                                 </Chip>
 
-                                <Chip selected={ selectedStatus === 'Rejected'} onPress={() => setSelectedStatus('Rejected')} accessibilityLabel="Filter by Rejected status" style={{ backgroundColor: selectedStatus === 'Rejected' ? theme.colors.secondary : undefined }}>
+                                <Chip selected={ selectedStatus === 'Rejected'} onPress={() => setSelectedStatus('Rejected')} accessibilityLabel="Filter by Rejected status" style={{ backgroundColor: selectedStatus === 'Rejected' ? chipSelectedBg : undefined }} textStyle={{ color: selectedStatus === 'Rejected' ? chipSelectedText : theme.colors.onSurface }}>
                                     Rejected
                                 </Chip>
 
-                                <Chip selected={ selectedStatus === 'No Response'} onPress={() => setSelectedStatus('No Response')} accessibilityLabel="Filter by No Response status" style={{ backgroundColor: selectedStatus === 'No Response' ? theme.colors.secondary : undefined }}>
-                                    No Response
+                                <Chip selected={ selectedStatus === 'Offered'} onPress={() => setSelectedStatus('Offered')} accessibilityLabel="Filter by Offered status" style={{ backgroundColor: selectedStatus === 'Offered' ? chipSelectedBg : undefined }} textStyle={{ color: selectedStatus === 'Offered' ? chipSelectedText : theme.colors.onSurface }}>
+                                    Offered
+                                </Chip>
+
+                                <Chip selected={ selectedStatus === 'Withdrawn'} onPress={() => setSelectedStatus('Withdrawn')} accessibilityLabel="Filter by Withdrawn status" style={{ backgroundColor: selectedStatus === 'Withdrawn' ? chipSelectedBg : undefined }} textStyle={{ color: selectedStatus === 'Withdrawn' ? chipSelectedText : theme.colors.onSurface }}>
+                                    Withdrawn
                                 </Chip>
                             </View>
                         </ScrollView>
@@ -196,7 +213,7 @@ export default function ListPage() {
                         <Text variant="labelSmall" style={{ marginTop: 8, opacity: 0.6 }}>Category</Text>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, alignSelf: "flex-start"}}>
                             <View style ={{ flexDirection: "row", gap: 10, marginBottom: 12, marginTop: 6 }}>
-                                <Chip selected={ selectedCategory === 'All'} onPress={() => setSelectedCategory('All')} accessibilityLabel="Filter by all categories" style={{ backgroundColor: selectedCategory === 'All' ? theme.colors.secondary : undefined }}>
+                                <Chip selected={ selectedCategory === 'All'} onPress={() => setSelectedCategory('All')} accessibilityLabel="Filter by all categories" style={{ backgroundColor: selectedCategory === 'All' ? chipSelectedBg : undefined }} textStyle={{ color: selectedCategory === 'All' ? chipSelectedText : theme.colors.onSurface }}>
                                     All Categories
                                 </Chip>
                                 {categories.map((category: Category) => (
@@ -205,7 +222,8 @@ export default function ListPage() {
                                         selected={selectedCategory === String(category.id)}
                                         onPress={() => setSelectedCategory(String(category.id))}
                                         accessibilityLabel={`Filter by category ${category.name}`}
-                                        style={{ backgroundColor: selectedCategory === String(category.id) ? theme.colors.secondary : undefined }}
+                                        style={{ backgroundColor: selectedCategory === String(category.id) ? chipSelectedBg : undefined }}
+                                        textStyle={{ color: selectedCategory === String(category.id) ? chipSelectedText : theme.colors.onSurface }}
                                     >
                                         {category.name}
                                     </Chip>
@@ -219,16 +237,16 @@ export default function ListPage() {
                         <Text variant="labelSmall" style={{ marginTop: 8, opacity: 0.6 }}>Date</Text>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, alignSelf: "flex-start"}}>
                             <View style={{ flexDirection: "row", gap: 10, marginBottom: 12, marginTop: 6 }}>
-                                <Chip selected={selectedDateRange === 'All'} onPress={() => setSelectedDateRange('All')} accessibilityLabel="Filter by all time" style={{ backgroundColor: selectedDateRange === 'All' ? theme.colors.secondary : undefined }}>
+                                <Chip selected={selectedDateRange === 'All'} onPress={() => setSelectedDateRange('All')} accessibilityLabel="Filter by all time" style={{ backgroundColor: selectedDateRange === 'All' ? chipSelectedBg : undefined }} textStyle={{ color: selectedDateRange === 'All' ? chipSelectedText : theme.colors.onSurface }}>
                                     All Time
                                 </Chip>
-                                <Chip selected={selectedDateRange === 'day'} onPress={() => setSelectedDateRange('day')} accessibilityLabel="Filter by today" style={{ backgroundColor: selectedDateRange === 'day' ? theme.colors.secondary : undefined }}>
+                                <Chip selected={selectedDateRange === 'day'} onPress={() => setSelectedDateRange('day')} accessibilityLabel="Filter by today" style={{ backgroundColor: selectedDateRange === 'day' ? chipSelectedBg : undefined }} textStyle={{ color: selectedDateRange === 'day' ? chipSelectedText : theme.colors.onSurface }}>
                                     Today
                                 </Chip>
-                                <Chip selected={selectedDateRange === 'week'} onPress={() => setSelectedDateRange('week')} accessibilityLabel="Filter by this week" style={{ backgroundColor: selectedDateRange === 'week' ? theme.colors.secondary : undefined }}>
+                                <Chip selected={selectedDateRange === 'week'} onPress={() => setSelectedDateRange('week')} accessibilityLabel="Filter by this week" style={{ backgroundColor: selectedDateRange === 'week' ? chipSelectedBg : undefined }} textStyle={{ color: selectedDateRange === 'week' ? chipSelectedText : theme.colors.onSurface }}>
                                     This Week
                                 </Chip>
-                                <Chip selected={selectedDateRange === 'month'} onPress={() => setSelectedDateRange('month')} accessibilityLabel="Filter by this month" style={{ backgroundColor: selectedDateRange === 'month' ? theme.colors.secondary : undefined }}>
+                                <Chip selected={selectedDateRange === 'month'} onPress={() => setSelectedDateRange('month')} accessibilityLabel="Filter by this month" style={{ backgroundColor: selectedDateRange === 'month' ? chipSelectedBg : undefined }} textStyle={{ color: selectedDateRange === 'month' ? chipSelectedText : theme.colors.onSurface }}>
                                     This Month
                                 </Chip>
                             </View>

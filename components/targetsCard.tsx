@@ -66,7 +66,7 @@ export default function TargetsCard({ targets, applications, categories }: Props
   }
 
   return (
-    <Card style={{ marginBottom: 16, backgroundColor: theme.colors.surface }}>
+    <Card style={{ marginBottom: 16, backgroundColor: theme.colors.surface }} onLayout={(e) => setCardWidth(e.nativeEvent.layout.width - 20)}>
       <Card.Content>
 
         <ScrollView
@@ -91,7 +91,7 @@ export default function TargetsCard({ targets, applications, categories }: Props
             const met = progress === target.goalCount;
             const exceeded = progress > target.goalCount;
 
-            const statusColor = unmet ? theme.colors.error : met ? '#6BBF8E' : '#2E7D52';
+            const statusColor = unmet ? theme.colors.error : '#6BBF8E';
             const statusLabel = unmet
                 ? `${target.goalCount - progress} applications to go!`
                 : met

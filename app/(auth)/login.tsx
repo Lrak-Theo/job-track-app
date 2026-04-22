@@ -6,7 +6,8 @@ import { eq } from 'drizzle-orm';
 import { useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
 import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Text, TextInput, useTheme } from 'react-native-paper';
+import FormField from '@/components/ui/form-field';
+import { Button, Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AuthContext } from '../_layout';
 
@@ -88,13 +89,9 @@ export default function LoginScreen() {
           Login to access the app
         </Text>
 
-        <TextInput label="Email" value={email} onChangeText={setEmail} autoCapitalize="none"
-          keyboardType="email-address" mode="outlined" style={styles.input} accessibilityLabel="Email address"
-        />
+        <FormField label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
 
-        <TextInput label="Password" value={password} onChangeText={setPassword} secureTextEntry
-          mode="outlined" style={styles.input} accessibilityLabel="Password"
-        />
+        <FormField label="Password" value={password} onChangeText={setPassword} secureTextEntry />
 
         {error ? (
           <Text style={[styles.error, { color: theme.colors.error }]}>{error}</Text>
@@ -125,7 +122,6 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
   logo: { width: 100, height: 100 },
   subtitle: { marginBottom: 40, opacity: 0.7 },
-  input: { marginBottom: 16 },
   error: { marginBottom: 12, fontSize: 14 },
   button: { marginTop: 8 },
   link: { marginTop: 12 },

@@ -22,17 +22,19 @@ export type User = {
 
 export type Category = {
   id: number;
+  userId: number;
   name: string;
   color: string;
 };
 
 export type Application = {
-    id: number; 
+    id: number;
     jobTitle: string;
     jobCompany: string;
     categoryId: number;
     applyDate: string;
     status: string;
+    notes: string | null;
 };
 
 export type StatusLog = {
@@ -133,9 +135,9 @@ export default function Base () {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Load data from the DB
-  const loadUserData = async (userId: number) => { 
+  const loadUserData = async (userId: number) => {
     const applicationRows = await db.select().from(applicationsTable).where(eq(applicationsTable.userId, userId));
-    const categoryRows = await db.select().from(categoriesTable);
+    const categoryRows = await db.select().from(categoriesTable).where(eq(categoriesTable.userId, userId));
     const applicationstatuslogRows = await db.select().from(applicationStatusLogsTable);
 
     setApplications(applicationRows);
@@ -185,7 +187,7 @@ export default function Base () {
       const applicationRows = activeUserId ? await db.select().from(applicationsTable).where(eq(applicationsTable.userId, activeUserId))
         : []; 
 
-      const categoryRows = await db.select().from(categoriesTable);
+      const categoryRows = activeUserId ? await db.select().from(categoriesTable).where(eq(categoriesTable.userId, activeUserId)) : [];
       const applicationstatuslogRows = await db.select().from(applicationStatusLogsTable);
 
       // Now only fetching target data from the current user
@@ -212,6 +214,7 @@ export default function Base () {
     await AsyncStorage.removeItem('session_user_id');
     setCurrentUser(null);
     setApplications([]);
+    setCategories([]);
     setStatusLogs([]);
     router.replace('/(auth)/login' as any);
   }

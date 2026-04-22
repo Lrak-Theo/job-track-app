@@ -12,9 +12,9 @@ export const usersTable = sqliteTable('users', {
 
 export const categoriesTable = sqliteTable('categories', {
   id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').notNull().references(() => usersTable.id),
   name: text('name').notNull(),
   color: text('color').notNull(), // e.g., '#dd76ff'
-
 });
 
 export const targetsTable = sqliteTable('targets', {
@@ -37,7 +37,7 @@ export const applicationsTable = sqliteTable('applications', {
   categoryId: integer('categoryId').notNull().references(() => categoriesTable.id), // foreign key
   applyDate: text('applyDate').notNull(),
   status: text('status').notNull(),
-
+  notes: text('notes'),
 });
 
 export const applicationStatusLogsTable = sqliteTable('application_status_logs', {

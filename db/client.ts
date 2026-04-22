@@ -17,6 +17,7 @@ sqlite.execSync(`
 sqlite.execSync(`
   CREATE TABLE IF NOT EXISTS categories (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id),
     name TEXT NOT NULL,
     color TEXT NOT NULL
   );
@@ -42,7 +43,8 @@ sqlite.execSync(`
     jobCompany TEXT NOT NULL,
     categoryId INTEGER NOT NULL REFERENCES categories(id),
     applyDate TEXT NOT NULL,
-    status TEXT NOT NULL
+    status TEXT NOT NULL,
+    notes TEXT
   );
 `);
 

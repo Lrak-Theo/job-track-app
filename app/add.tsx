@@ -23,6 +23,7 @@ export default function AddApplication() {
     const [categoryId, setCategoryId] = useState<number | null>(null);
     const [applyDate, setApplyDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [notes, setNotes] = useState('');
 
     // Early error handling
     if (!context) return null;
@@ -42,6 +43,7 @@ export default function AddApplication() {
             categoryId,
             applyDate: applyDate.toISOString().split('T')[0],
             status: 'Applied',
+            notes: notes.trim() || null,
         }).returning();
 
         await db.insert(applicationStatusLogsTable).values({
@@ -129,6 +131,19 @@ export default function AddApplication() {
                         }}
                     />
                 )}
+
+                <Divider style={{ marginBottom: 16 }} />
+
+                {/* Notes (optional) */}
+                <TextInput
+                    label="Notes (optional)"
+                    value={notes}
+                    onChangeText={setNotes}
+                    style={{ marginBottom: 16, backgroundColor: theme.colors.surface }}
+                    multiline
+                    numberOfLines={3}
+                    accessibilityLabel="Notes"
+                />
 
                 <Button
                     mode="contained"

@@ -10,7 +10,7 @@ export async function scheduleWeeklyReminder() {
     await Notifications.scheduleNotificationAsync({
         content: {
             title: "Weekly Target Reminder",
-            body: "Don't forget to check your weeky application target!",
+            body: "Don't forget to check your weekly application target!",
         },
 
         trigger: {

@@ -1,4 +1,5 @@
 import bcrypt from '@/utils/passwordcrypto';
+import { eq } from 'drizzle-orm';
 import { db } from './client';
 import { applicationsTable, applicationStatusLogsTable, categoriesTable, targetsTable, usersTable } from './schema';
 
@@ -33,15 +34,20 @@ export async function seedApplicationsIfEmpty() {
   const testUser = users.find(u => u.email === 'test@test.com');
   const emptyUser = users.find(u => u.email === 'empty@test.com');
 
-  // Seed categories
-  await db.insert(categoriesTable).values([
+  // Seed categories per user
+  const defaultCategories = [
     { name: 'Tech', color: '#3B82F6' },
     { name: 'Finance', color: '#10B981' },
     { name: 'Marketing', color: '#F59E0B' },
     { name: 'Design', color: '#8B5CF6' },
+  ];
+
+  await db.insert(categoriesTable).values([
+    ...defaultCategories.map(c => ({ ...c, userId: testUser!.id })),
+    ...defaultCategories.map(c => ({ ...c, userId: emptyUser!.id })),
   ]);
 
-  const categories = await db.select().from(categoriesTable);
+  const categories = await db.select().from(categoriesTable).where(eq(categoriesTable.userId, testUser!.id));
   const tech = categories.find(c => c.name === 'Tech');
   const finance = categories.find(c => c.name === 'Finance');
   const marketing = categories.find(c => c.name === 'Marketing');

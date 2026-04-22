@@ -1,11 +1,12 @@
 import { db } from '@/db/client';
-import { usersTable } from '@/db/schema';
+import { categoriesTable, usersTable } from '@/db/schema';
 import bcrypt from '@/utils/passwordcrypto';
 import { eq } from 'drizzle-orm';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Text, TextInput, useTheme } from 'react-native-paper';
+import FormField from '@/components/ui/form-field';
+import { Button, Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RegisterScreen() {
@@ -59,13 +60,21 @@ export default function RegisterScreen() {
             const passwordHash = await bcrypt.hash(password, salt);
 
             // Finally, insert the details in the table
-            await db.insert(usersTable).values({
+            const newUserRows = await db.insert(usersTable).values({
                 firstName: firstName.trim(),
                 lastName: lastName.trim(),
                 email: email.trim().toLowerCase(),
                 passwordhashed: passwordHash,
                 createdAt: new Date().toISOString(),
-            });
+            }).returning();
+
+            // Seed default categories for the new user
+            await db.insert(categoriesTable).values([
+                { userId: newUserRows[0].id, name: 'Tech', color: '#3B82F6' },
+                { userId: newUserRows[0].id, name: 'Finance', color: '#10B981' },
+                { userId: newUserRows[0].id, name: 'Marketing', color: '#F59E0B' },
+                { userId: newUserRows[0].id, name: 'Design', color: '#8B5CF6' },
+            ]);
 
             router.replace('/login');
         } catch (error) {
@@ -94,25 +103,15 @@ export default function RegisterScreen() {
           Create an account
         </Text>
 
-        <TextInput label="First Name" value={firstName} onChangeText={setFirstName}
-          mode="outlined" style={styles.input} accessibilityLabel="First name"
-        />
+        <FormField label="First Name" value={firstName} onChangeText={setFirstName} />
 
-        <TextInput label="Last Name" value={lastName} onChangeText={setLastName}
-          mode="outlined" style={styles.input} accessibilityLabel="Last name"
-        />
+        <FormField label="Last Name" value={lastName} onChangeText={setLastName} />
 
-        <TextInput label="Email" value={email} onChangeText={setEmail} autoCapitalize="none"
-          keyboardType="email-address" mode="outlined" style={styles.input} accessibilityLabel="Email address"
-        />
+        <FormField label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
 
-        <TextInput label="Password" value={password} onChangeText={setPassword} secureTextEntry
-          mode="outlined" style={styles.input} accessibilityLabel="Password"
-        />
+        <FormField label="Password" value={password} onChangeText={setPassword} secureTextEntry />
 
-        <TextInput label="Confirm Password" value={confirmPassword} onChangeText={setConfirmPassword}
-          secureTextEntry mode="outlined" style={styles.input} accessibilityLabel="Confirm password"
-        />
+        <FormField label="Confirm Password" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
 
         {error ? (
           <Text style={[styles.error, { color: theme.colors.error }]}>{error}</Text>
@@ -140,7 +139,6 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
   logo: { width: 100, height: 100 },
   subtitle: { marginBottom: 32, opacity: 0.7 },
-  input: { marginBottom: 16 },
   error: { marginBottom: 12, fontSize: 14 },
   button: { marginTop: 8 },
   link: { marginTop: 12 },

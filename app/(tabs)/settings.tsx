@@ -1,18 +1,20 @@
 import { cancelReminder, scheduleWeeklyReminder } from '@/utils/notifications';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { eq } from 'drizzle-orm';
+import { useRouter } from 'expo-router';
 import { useContext, useEffect, useState } from "react";
 import { Alert, Image, ScrollView, View } from "react-native";
 import { Divider, List, Switch, Text, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { db } from '../../db/client';
-import { applicationsTable, targetsTable, usersTable } from '../../db/schema';
+import { applicationsTable, applicationStatusLogsTable, categoriesTable, targetsTable, usersTable } from '../../db/schema';
 import { AuthContext, ThemeContext } from "../_layout";
 
 
 export default function SettingsScreen() { 
 
     // Load the context and theme
+    const router = useRouter();
     const authContext = useContext(AuthContext);
     const {isDarkMode, toggleTheme} = useContext(ThemeContext);
     const theme = useTheme();
@@ -42,7 +44,9 @@ export default function SettingsScreen() {
                         if (!userId) return;
 
                         await db.delete(targetsTable).where(eq(targetsTable.userId, userId));
+                        await db.delete(applicationStatusLogsTable);
                         await db.delete(applicationsTable).where(eq(applicationsTable.userId, userId));
+                        await db.delete(categoriesTable).where(eq(categoriesTable.userId, userId));
                         await db.delete(usersTable).where(eq(usersTable.id, userId));
 
                         await authContext?.logout();
@@ -94,18 +98,33 @@ export default function SettingsScreen() {
 
                 <Divider style={{ marginVertical: 16 }} />
 
+                {/* Application Details  */}
+                <Text variant="labelLarge" style={{ marginBottom: 8 }}>
+                    Application Details
+                </Text>
+
+                <List.Item title="Manage Categories" left={() => <List.Icon icon="tag-outline" />}
+                    onPress={() => router.push('/category_manage' as any)}
+                />
+
+                
+                <Divider style={{ marginVertical: 16 }} />
+                
                 {/* Account settings */}
                 <Text variant="labelLarge" style={{ marginBottom: 8 }}>
                     Account
                 </Text>
 
+
                 <List.Item title="Logout" left={() => <List.Icon icon="logout" />}
-                    onPress={handleLogout} 
+                    onPress={handleLogout}
                 />
 
                 <List.Item title="Delete Account" left={() => <List.Icon icon="delete-outline" />} 
                     onPress={handleDeleteAccount} 
                 />
+
+                <Divider style={{ marginVertical: 16 }} />
 
                 {/* Notifications */}
                 <Text variant="labelLarge" style={{ marginBottom: 8 }}>
