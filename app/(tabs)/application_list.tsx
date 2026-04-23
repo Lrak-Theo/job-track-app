@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useContext, useState } from "react";
-import { ScrollView, View } from "react-native";
+import { Keyboard, ScrollView, View } from "react-native";
 import { Chip, Divider, FAB, IconButton, Text, TextInput } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context"; // SAV is used to prevent the page content to layer on top of the IOS head bar
 import JobCard from "../../components/JobCard";
@@ -145,6 +145,8 @@ export default function ListPage() {
                         onChangeText={setSearchQuery}
                         style={{ flex: 1, marginRight: 4, backgroundColor: theme.colors.surface }}
                         dense
+                        returnKeyType="search"
+                        onSubmitEditing={Keyboard.dismiss}
                         accessibilityLabel="Search applications by company or role"
                     />
                     <ExportButton />
@@ -256,7 +258,7 @@ export default function ListPage() {
                     </>
                 )}
 
-                <ScrollView style={{ flex: 1, paddingTop: 16 }} contentContainerStyle={{ padding: 1 }}>
+                <ScrollView style={{ flex: 1, paddingTop: 16 }} contentContainerStyle={{ padding: 1 }} keyboardShouldPersistTaps="handled">
                         {/* listContent condition is above the render */}
                         {listContent}
                 </ScrollView>

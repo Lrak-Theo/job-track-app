@@ -2,7 +2,7 @@ import { categoriesTable, targetsTable } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { useRouter } from 'expo-router';
 import { useContext, useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, View } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, View } from 'react-native';
 import FormField from '@/components/ui/form-field';
 import { Button, Chip, Divider, IconButton, Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -48,7 +48,9 @@ export default function AddTarget() {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }} edges={['top']}>
-            <KeyboardAvoidingView style={{ flex: 1, padding: 20 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+            <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <View style={{ flex: 1, padding: 20 }}>
 
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
                     <IconButton icon="close" onPress={() => router.back()} accessibilityLabel="Close" />
@@ -101,7 +103,7 @@ export default function AddTarget() {
                 </View>
 
                 <Text variant="labelSmall" style={{ opacity: 0.6, marginBottom: 8 }}>{period === 'weekly' ? 'Weekly' : 'Monthly'} Goal</Text>
-                <FormField label="Number of applications" value={goalCount} onChangeText={setGoalCount} keyboardType="numeric" />
+                <FormField label="Number of applications" value={goalCount} onChangeText={setGoalCount} keyboardType="numeric" returnKeyType="done" />
 
                 <Button
                     mode="contained"
@@ -112,6 +114,8 @@ export default function AddTarget() {
                     Save
                 </Button>
 
+            </View>
+            </TouchableWithoutFeedback>
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
