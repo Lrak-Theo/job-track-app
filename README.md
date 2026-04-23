@@ -2,7 +2,7 @@
 
 **GitHub Repository:** https://github.com/Lrak-Theo/job-track-app 
 
-**Expo Link:** https://expo.dev/preview/update?message=Final+submission+%28%2B+phone+tweaks%29&updateRuntimeVersion=1.0.0&createdAt=2026-04-23T10%3A43%3A04.665Z&slug=exp&projectId=21f00595-4e81-4699-b183-50db36c8fd80&group=ec911938-d998-4601-b086-b6e6cbed3a0e 
+**Expo Link:** https://expo.dev/preview/update?message=Final+submission+%28%2B+Added+README%29&updateRuntimeVersion=1.0.0&createdAt=2026-04-23T10%3A48%3A50.602Z&slug=exp&projectId=21f00595-4e81-4699-b183-50db36c8fd80&group=2febf1b2-7b20-40f9-bf83-2df758615a7b
 
 ---
 
